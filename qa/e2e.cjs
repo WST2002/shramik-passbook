@@ -106,9 +106,35 @@ async function newWorker(browser, size, lang) {
   check(user, 'home has no back button', (await (await topBack(page)).count()) === 0);
   check(user, 'no horizontal scroll on home', await noHorizontalScroll(page));
 
+  await goTile(page, 2);
+  await ready(page, '.screen-header');
+  check(user, 'print disabled with no days', await page.isDisabled('main .big-button.primary'));
+  await page.goBack();
+  await ready(page, '.home');
+  await goTile(page, 3);
+  await ready(page, '.screen-header');
+  check(user, 'backup and export disabled with no days', (await page.locator('main .big-button.secondary:disabled').count()) === 2);
+  check(user, 'profile save disabled when unchanged', await page.isDisabled('form.panel button[type=submit]'));
+  await page.fill('#name', 'सुनीता देवी');
+  check(user, 'profile save enabled after a change', await page.isEnabled('form.panel button[type=submit]'));
+  await page.click('form.panel button[type=submit]');
+  await page.waitForFunction(() => document.querySelector('form.panel button[type=submit]').disabled);
+  check(user, 'profile save disabled again after saving', true);
+  await page.goBack();
+  await ready(page, '.home');
+  check(user, 'saved name shown on home', (await page.textContent('.greeting')).trim() === 'सुनीता देवी');
+
   await page.click('.home .big-button.primary');
   await ready(page, '#heard');
   check(user, 'add screen top-bar back visible', await (await topBack(page)).isVisible());
+  check(user, 'fill button disabled while text box empty', await page.isDisabled('.inline-form button[type=submit]'));
+  await page.fill('#contractor', 'Koi');
+  await page.locator('label.work-option').first().click();
+  await page.click('.entry-form button[type=submit]');
+  check(user, 'empty site blocks save with a message next to it', await page.isVisible('#site-error'));
+  check(user, 'site marked invalid', (await page.getAttribute('#site', 'aria-invalid')) === 'true');
+  check(user, 'filled contractor has no error', (await page.locator('#contractorName-error').count()) === 0);
+  check(user, 'still on add screen', (await page.locator('#heard').count()) === 1);
   await fillFromText(page, 'आज रमेश ठेकेदार के यहाँ लंका में मिस्त्री का काम, 700 तय, 500 मिले');
   let form = await readForm(page);
   check(user, 'Devanagari text parsed', form.contractor.includes('रमेश') && form.site.includes('लंका') && form.workType === 'mason' && form.agreed === '700' && form.paid === '500' && form.date === today(), JSON.stringify(form));
@@ -132,23 +158,25 @@ async function newWorker(browser, size, lang) {
   await page.click('.entry-form button[type=submit]');
   check(user, 'missing contractor shows error', await page.isVisible('.entry-form .error'));
   check(user, 'future date blocked by max attribute', (await page.getAttribute('#date', 'max')) === today());
+  check(user, 'contractor error next to the field', await page.isVisible('#contractorName-error'));
   await page.fill('#heard', '');
-  await page.click('.inline-form button[type=submit]');
-  check(user, 'empty text does nothing', (await page.locator('.voice-box .notice').count()) === 0);
+  check(user, 'empty text keeps fill disabled', await page.isDisabled('.inline-form button[type=submit]'));
   await page.fill('#contractor', 'Manual Wala');
+  check(user, 'contractor error clears once typed', (await page.locator('#contractorName-error').count()) === 0);
   await page.fill('#contractor-phone', '09876500001');
   await page.fill('#agreed', '600');
   await page.fill('#paid', '800');
-  await page.click('.entry-form button[type=submit]');
+  await page.locator('.entry-form button[type=submit]').dblclick();
   await ready(page, '.home');
 
   await goTile(page, 0);
   await ready(page, '.day-list');
-  check(user, 'days list shows 3 days', (await page.locator('.day-card').count()) === 3);
+  check(user, 'days list shows 3 days (double tap saved once)', (await page.locator('.day-card').count()) === 3);
   page.once('dialog', (d) => d.accept());
   await page.locator('.day-card').first().locator('button.danger').click();
   await page.waitForFunction(() => document.querySelectorAll('.day-card').length === 2);
   check(user, 'delete a day', true);
+  check(user, 'delete shows a toast', /हटा दिया|deleted/.test(await page.textContent('.toast')));
   await page.goBack();
   await ready(page, '.home');
   check(user, 'history.back returns home from days', true);
@@ -187,6 +215,10 @@ async function confirmRoundTrip(browser, size, lang) {
   await ready(page, '.choice-list');
   check(user, 'confirm screen top-bar back visible', await (await topBack(page)).isVisible());
   await page.locator('.choice').first().click();
+  check(user, 'add confirmation disabled while code box empty', await page.isDisabled('.panel .big-button.confirm'));
+  for (const box of await page.locator('.check-list input[type=checkbox]').all()) await box.uncheck();
+  check(user, 'no day selected disables WhatsApp send', (await page.locator('button.whatsapp:disabled').count()) === 1 && (await page.locator('a.whatsapp').count()) === 0);
+  for (const box of await page.locator('.check-list input[type=checkbox]').all()) await box.check();
   const href = await page.getAttribute('a.whatsapp', 'href');
   const url = new URL(href);
   check(user, 'wa.me number normalised from 0-prefix', url.pathname === '/919876511111', url.pathname);
@@ -197,13 +229,19 @@ async function confirmRoundTrip(browser, size, lang) {
 
   const contractor = await newPage(browser, size, lang);
   const c = contractor.page;
+  contractor.context.on('page', (p) => p.close());
   await c.goto(link);
   await ready(c, '.confirm-list');
   check(user, 'contractor sees 2 days', (await c.locator('.confirm-day').count()) === 2);
   check(user, 'contractor page no horizontal scroll', await noHorizontalScroll(c));
   await c.locator('.confirm-day button').first().click();
-  await c.click('button.big-button.confirm');
+  await c.locator('button.big-button.confirm').dblclick();
   const code = (await c.textContent('.code-box')).trim();
+  check(user, 'contractor confirm button gone after confirming', (await c.locator('button.big-button.confirm').count()) === 0);
+  check(user, 'contractor sees count and next step', /\b1\b/.test(await c.textContent('.notice.success')), await c.textContent('.notice.success'));
+  await c.evaluate(() => document.querySelector('a.whatsapp').addEventListener('click', (e) => e.preventDefault()));
+  await c.click('a.whatsapp');
+  check(user, 'contractor sees done note after sending', await c.isVisible('.notice:not(.success)'));
   check(user, 'contractor gets code', /^SP1-[0-9a-z]{6}-[0-9a-z]{4}$/.test(code), code);
   const reply = new URL(await c.getAttribute('a.whatsapp', 'href'));
   check(user, 'reply goes to worker phone', reply.pathname === '/919876543210', reply.pathname);
@@ -227,9 +265,16 @@ async function confirmRoundTrip(browser, size, lang) {
   await page.click('.panel .big-button.confirm');
   check(user, 'wrong code rejected', (await page.textContent('.notice')).length > 0);
   await page.fill('#code', replyText);
-  await page.click('.panel .big-button.confirm');
-  await ready(page, '.notice');
-  check(user, 'pasted WhatsApp message applied 1 day', /1/.test(await page.textContent('.notice')), await page.textContent('.notice'));
+  await page.locator('.panel .big-button.confirm').dblclick();
+  await ready(page, '.notice.success');
+  const applied = await page.textContent('.notice.success');
+  check(user, 'pasted WhatsApp message applied 1 day (singular)', /^1 (दिन पर|day is)/.test(applied), applied);
+  check(user, 'code box cleared after applying', (await page.inputValue('#code')) === '');
+  check(user, 'add confirmation disabled after applying', await page.isDisabled('.panel .big-button.confirm'));
+  await page.fill('#code', replyText);
+  const again = await page.textContent('.notice');
+  check(user, 'same code again says already added', /पहले ही जुड़ चुकी|already added/.test(again), again);
+  check(user, 'already-added code keeps button disabled', await page.isDisabled('.panel .big-button.confirm'));
   await page.goto(BASE);
   await ready(page, '.home');
   check(user, 'home ring shows 1 confirmed', (await page.textContent('.ring-number')).trim() === '1');
@@ -238,6 +283,7 @@ async function confirmRoundTrip(browser, size, lang) {
   await page.goto(codeLink);
   await ready(page, '#code');
   check(user, '#code link prefills code', (await page.inputValue('#code')).startsWith('SP1-'));
+  check(user, '#code link of an applied code says already added', /पहले ही जुड़ चुकी|already added/.test(await page.textContent('.notice')));
   await (await topBack(page)).click();
   await ready(page, '.home');
   check(user, 'back from #code link lands home', true);
@@ -353,6 +399,143 @@ async function navigationAndScreens(browser, size, lang) {
   await context.close();
 }
 
+// Reads the stored day list straight from IndexedDB (idb-keyval's default store).
+async function storedDays(page) {
+  return page.evaluate(
+    () =>
+      new Promise((resolve, reject) => {
+        const open = indexedDB.open('keyval-store');
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const db = open.result;
+          if (!db.objectStoreNames.contains('keyval')) return resolve([]);
+          const get = db.transaction('keyval').objectStore('keyval').get('entries');
+          get.onsuccess = () => resolve(get.result || []);
+          get.onerror = () => reject(get.error);
+        };
+      }),
+  );
+}
+
+async function addDay(page, text) {
+  await page.click('.home .big-button.primary');
+  await ready(page, '#heard');
+  await fillFromText(page, text);
+  await page.click('.entry-form button[type=submit]');
+  await ready(page, '.home');
+}
+
+async function reloadHome(page) {
+  await page.goto(BASE);
+  await page.reload();
+  await ready(page, '.home');
+}
+
+async function persistence(browser, size, lang) {
+  const user = `persistence ${size.width} ${lang}`;
+  const { context, page, errors } = await newPage(browser, size, lang);
+  await context.addInitScript(() => {
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (...args) {
+      if (localStorage.getItem('qa:fail-writes')) throw new DOMException('disk full', 'QuotaExceededError');
+      return put.apply(this, args);
+    };
+  });
+  await startAsWorker(page, 'Persist', '');
+  await reloadHome(page);
+  check(user, 'profile survives reload', (await page.textContent('.greeting')).trim() === 'Persist');
+
+  await addDay(page, 'aaj Ramesh thekedar ke yahan Lanka mein mistri ka kaam, 700 tay, 500 mile');
+  await addDay(page, 'kal ramesh  thekedar ke yahan Lanka mein mistri ka kaam, 700 tay, 700 mile');
+  let stored = await storedDays(page);
+  check(user, 'two days stored with unique ids', stored.length === 2 && new Set(stored.map((d) => d.id)).size === 2, JSON.stringify(stored.map((d) => d.id)));
+  check(user, 'stored days carry the site', stored.every((d) => d.site.trim().length > 0));
+  check(user, 'one spelling per contractor', new Set(stored.map((d) => d.contractorName)).size === 1, stored.map((d) => d.contractorName).join('|'));
+  await reloadHome(page);
+  check(user, 'home total 2 after reload', (await page.textContent('.hero-total strong')).trim() === '2');
+
+  await page.click('.home .big-button.primary');
+  await ready(page, '#heard');
+  await fillFromText(page, 'aaj Ramesh thekedar ke yahan Lanka mein mistri ka kaam, 700 tay');
+  await page.click('.entry-form button[type=submit]');
+  check(user, 'same day and contractor again is blocked next to the date', await page.isVisible('#date-error'));
+  check(user, 'duplicate not stored', (await storedDays(page)).length === 2);
+  await (await topBack(page)).click();
+  await ready(page, '.home');
+
+  await goTile(page, 1);
+  await ready(page, '.ledger-list');
+  check(user, 'ledger has one contractor row with 2 days', (await page.locator('.ledger-card').count()) === 1 && /2/.test(await page.textContent('.ledger-card .muted')));
+  await page.goBack();
+  await ready(page, '.home');
+
+  await page.evaluate(() => localStorage.setItem('qa:fail-writes', '1'));
+  await page.click('.home .big-button.primary');
+  await ready(page, '#heard');
+  await fillFromText(page, 'aaj Suresh thekedar ke yahan Sigra mein helper ka kaam, 500 tay');
+  await page.click('.entry-form button[type=submit]');
+  await page.waitForSelector('.toast');
+  check(user, 'failed write shows the storage error', /सेव नहीं हो पा रहा|cannot be saved/.test(await page.textContent('.toast')), await page.textContent('.toast'));
+  check(user, 'failed write keeps the form open', (await page.locator('#heard').count()) === 1);
+  check(user, 'failed write re-enables save', await page.isEnabled('.entry-form button[type=submit]'));
+  await page.evaluate(() => localStorage.removeItem('qa:fail-writes'));
+  await reloadHome(page);
+  check(user, 'failed write did not pretend: still 2 days', (await page.textContent('.hero-total strong')).trim() === '2');
+
+  await goTile(page, 0);
+  await ready(page, '.day-list');
+  page.on('dialog', (d) => d.accept());
+  // Both taps land before React re-renders, so each delete starts from the same list.
+  await page.evaluate(() => document.querySelectorAll('.day-card button.danger').forEach((b) => b.click()));
+  await page.waitForFunction(() => document.querySelectorAll('.day-card').length === 0);
+  await reloadHome(page);
+  check(user, 'two quick deletes both persist', (await storedDays(page)).length === 0 && (await page.textContent('.hero-total strong')).trim() === '0');
+
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        const open = indexedDB.open('keyval-store');
+        open.onsuccess = () => {
+          const tx = open.result.transaction('keyval', 'readwrite');
+          tx.objectStore('keyval').put([{ id: 'oldone', date: '2026-01-05', contractorName: 'Purana' }, { date: 'kal' }], 'entries');
+          tx.oncomplete = resolve;
+        };
+      }),
+  );
+  await reloadHome(page);
+  await goTile(page, 0);
+  await ready(page, '.screen-header');
+  check(user, 'old stored day without new fields still shows', (await page.locator('.day-card').count()) === 1);
+
+  const beforeDemo = JSON.stringify(await storedDays(page));
+  await page.goto(BASE);
+  await ready(page, '.home');
+  await goTile(page, 3);
+  await ready(page, '.screen-header');
+  await page.locator('main section.panel button', { hasText: /demo|डेमो/i }).first().click();
+  await ready(page, '.demo-banner');
+  await page.goto(`${BASE}#/add`);
+  await ready(page, '#heard');
+  await fillFromText(page, 'aaj Demo thekedar ke yahan Sigra mein helper ka kaam, 500 tay');
+  await page.click('.entry-form button[type=submit]');
+  await page.waitForTimeout(500);
+  check(user, 'demo day never written to storage', JSON.stringify(await storedDays(page)) === beforeDemo);
+  await page.locator('.demo-banner button').click();
+  await page.waitForSelector('.demo-banner', { state: 'detached' });
+
+  await page.goto(BASE);
+  await ready(page, '.home');
+  await goTile(page, 3);
+  await ready(page, '.screen-header');
+  await page.locator('button.danger').click();
+  await ready(page, '#welcome-name');
+  await page.reload();
+  await ready(page, '#welcome-name');
+  check(user, 'delete all survives reload', (await storedDays(page)).length === 0);
+  check(user, 'no page errors', errors.length === 0, errors.join('; '));
+  await context.close();
+}
+
 async function backupAndOffline(browser, size) {
   const user = `backup/offline ${size.width}`;
   const { context, page, errors } = await newPage(browser, size, 'en');
@@ -380,6 +563,7 @@ async function backupAndOffline(browser, size) {
   await goTile(page, 3);
   await page.setInputFiles('.file-button input', backupPath);
   await ready(page, '.toast');
+  check(user, 'restore says how many days came back', await page.waitForFunction(() => document.querySelector('.toast')?.textContent.includes('1 day restored')).then(() => true, () => false));
   await page.goto(BASE);
   await ready(page, '.home');
   await goTile(page, 0);
@@ -421,6 +605,8 @@ async function suite(label, run) {
       await suite(`navigation ${size.width} ${lang}`, () => navigationAndScreens(browser, size, lang));
     }
   }
+  await suite('persistence hi', () => persistence(browser, SIZES[1], 'hi'));
+  await suite('persistence en', () => persistence(browser, SIZES[2], 'en'));
   await suite('backup/offline', () => backupAndOffline(browser, SIZES[1]));
   await browser.close();
   if (process.env.WEBKIT) {
