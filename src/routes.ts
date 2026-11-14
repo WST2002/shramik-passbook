@@ -9,7 +9,12 @@ export function routeFromHash(hash: string): Route {
 
 export function codeFromHash(hash: string): string | undefined {
   const match = /^#code=(.+)$/.exec(hash);
-  return match ? decodeURIComponent(match[1]) : undefined;
+  if (!match) return undefined;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
 export function isContractorPage(pathname: string): boolean {
