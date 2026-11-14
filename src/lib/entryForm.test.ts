@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parsedPatch, type EntryFormState } from './entryForm';
+import { entryProblems, parsedPatch, type EntryFormState } from './entryForm';
 import type { WorkEntry } from './types';
 
 const known: WorkEntry = {
@@ -52,5 +52,25 @@ describe('parsedPatch', () => {
   it('keeps a spoken paid wage', () => {
     const patch = parsedPatch(prefilled, { wageAgreed: 700, wagePaid: 500 }, []);
     expect(patch.wagePaid).toBe('500');
+  });
+});
+
+describe('entryProblems', () => {
+  it('accepts a complete day', () => {
+    expect(entryProblems(prefilled, '2026-11-14')).toEqual({});
+  });
+
+  it('requires the site as well as date, work type and contractor', () => {
+    const empty: EntryFormState = { ...prefilled, date: '', workType: undefined, site: '  ', contractorName: '' };
+    expect(entryProblems(empty, '2026-11-14')).toEqual({
+      date: 'missing',
+      workType: 'missing',
+      site: 'missing',
+      contractorName: 'missing',
+    });
+  });
+
+  it('rejects a date after today', () => {
+    expect(entryProblems({ ...prefilled, date: '2026-11-15' }, '2026-11-14')).toEqual({ date: 'future' });
   });
 });

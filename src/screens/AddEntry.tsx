@@ -1,14 +1,21 @@
 import { Camera, MapPin, Mic, Save } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { getAgent } from '../agent';
 import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
 import { compressPhoto, currentPosition, isSpeechSupported, listenOnce } from '../lib/device';
 import { WORK_ICONS } from '../lib/format';
-import { parsedPatch, type EntryFormState } from '../lib/entryForm';
+import { entryProblems, parsedPatch, type EntryFormState, type RequiredField } from '../lib/entryForm';
 import type { ParsedEntry } from '../lib/parser';
 import { newEntryId } from '../lib/payload';
 import { WORK_TYPES, type GeoPoint, type WorkEntry } from '../lib/types';
+
+const FIELD_IDS: Record<RequiredField, string> = {
+  date: 'date',
+  workType: 'work-type-first',
+  site: 'site',
+  contractorName: 'contractor',
+};
 
 interface Props {
   entries: WorkEntry[];
@@ -35,11 +42,13 @@ export function AddEntry({ entries, today, onSave }: Props) {
   const [filled, setFilled] = useState<Set<keyof EntryFormState>>(new Set());
   const [heard, setHeard] = useState('');
   const [listening, setListening] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<'checkParsed' | 'voiceFailed'>();
   const [gps, setGps] = useState<GeoPoint>();
-  const [gpsStatus, setGpsStatus] = useState('');
+  const [gpsStatus, setGpsStatus] = useState<'gpsFinding' | 'gpsAdded' | 'gpsFailed'>();
   const [photo, setPhoto] = useState<{ blob: Blob; gps?: GeoPoint; takenAt: string }>();
-  const [error, setError] = useState('');
+  const [triedSave, setTriedSave] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
 
   const contractors = [...new Set(entries.map((e) => e.contractorName))];
   const sites = [...new Set(entries.map((e) => e.site).filter(Boolean))];
@@ -52,28 +61,29 @@ export function AddEntry({ entries, today, onSave }: Props) {
     const patch = parsedPatch(form, parsed, entries);
     update(patch);
     setFilled(new Set(Object.keys(patch) as (keyof EntryFormState)[]));
-    setMessage(Object.keys(patch).length ? t.checkParsed : t.voiceFailed);
+    setMessage(Object.keys(patch).length ? 'checkParsed' : 'voiceFailed');
   }
 
   async function speak() {
     setListening(true);
-    setMessage('');
+    setMessage(undefined);
     try {
       const text = await listenOnce(lang === 'hi' ? 'hi-IN' : 'en-IN');
       setHeard(text);
       if (text) await applyText(text);
-      else setMessage(t.voiceFailed);
+      else setMessage('voiceFailed');
     } catch {
-      setMessage(t.voiceFailed);
+      setMessage('voiceFailed');
     } finally {
       setListening(false);
     }
   }
 
   async function addGps() {
+    setGpsStatus('gpsFinding');
     const point = await currentPosition();
     setGps(point);
-    setGpsStatus(point ? t.gpsAdded : t.gpsFailed);
+    setGpsStatus(point ? 'gpsAdded' : 'gpsFailed');
   }
 
   async function addPhoto(file: File | undefined) {
@@ -84,10 +94,16 @@ export function AddEntry({ entries, today, onSave }: Props) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!form.date || !form.workType || !form.contractorName.trim()) {
-      setError(t.required);
+    if (savingRef.current) return;
+    const found = entryProblems(form, today);
+    const first = (['date', 'workType', 'site', 'contractorName'] as const).find((field) => found[field]);
+    if (first || !form.workType) {
+      setTriedSave(true);
+      if (first) document.getElementById(FIELD_IDS[first])?.focus();
       return;
     }
+    savingRef.current = true;
+    setSaving(true);
     const agreed = Number(form.wageAgreed) || 0;
     const entry: WorkEntry = {
       id: newEntryId(),
@@ -105,7 +121,19 @@ export function AddEntry({ entries, today, onSave }: Props) {
     await onSave(entry, photo?.blob);
   }
 
+  const problems = triedSave ? entryProblems(form, today) : {};
   const cls = (field: keyof EntryFormState) => (filled.has(field) ? 'field filled' : 'field');
+  const fieldError = (field: RequiredField) => {
+    const problem = problems[field];
+    if (!problem) return null;
+    return (
+      <p className="error field-error" id={`${field}-error`}>
+        {problem === 'future' ? t.dateFuture : t.fieldMissing[field]}
+      </p>
+    );
+  };
+  const invalid = (field: RequiredField) =>
+    problems[field] ? { 'aria-invalid': true, 'aria-describedby': `${field}-error` } : {};
 
   return (
     <main className="screen">
@@ -132,13 +160,13 @@ export function AddEntry({ entries, today, onSave }: Props) {
             {t.typeInstead}
           </label>
           <input id="heard" value={heard} placeholder={t.typeInstead} onChange={(e) => setHeard(e.target.value)} />
-          <button type="submit" className="small-button">
+          <button type="submit" className="small-button" disabled={!heard.trim() || listening}>
             {t.fillFromText}
           </button>
         </form>
         {message && (
           <p className="notice" role="status">
-            {message}
+            {t[message]}
           </p>
         )}
       </section>
@@ -146,7 +174,8 @@ export function AddEntry({ entries, today, onSave }: Props) {
       <form className="entry-form" onSubmit={submit} noValidate>
         <div className={cls('date')}>
           <label htmlFor="date">{t.date}</label>
-          <input id="date" type="date" value={form.date} max={today} onChange={(e) => update({ date: e.target.value })} />
+          <input id="date" type="date" value={form.date} max={today} onChange={(e) => update({ date: e.target.value })} {...invalid('date')} />
+          {fieldError('date')}
         </div>
 
         <fieldset className={cls('workType')}>
@@ -160,27 +189,47 @@ export function AddEntry({ entries, today, onSave }: Props) {
                   value={type}
                   checked={form.workType === type}
                   onChange={() => update({ workType: type })}
+                  {...(type === WORK_TYPES[0] ? { id: FIELD_IDS.workType } : {})}
+                  {...invalid('workType')}
                 />
                 <Icon icon={WORK_ICONS[type]} size="lg" />
                 <span>{t.workTypes[type]}</span>
               </label>
             ))}
           </div>
+          {fieldError('workType')}
         </fieldset>
 
         <div className={cls('site')}>
           <label htmlFor="site">{t.site}</label>
-          <input id="site" list="site-list" value={form.site} placeholder={t.sitePlaceholder} onChange={(e) => update({ site: e.target.value })} />
+          <input
+            id="site"
+            list="site-list"
+            value={form.site}
+            placeholder={t.sitePlaceholder}
+            onChange={(e) => update({ site: e.target.value })}
+            {...invalid('site')}
+          />
+          {fieldError('site')}
           <datalist id="site-list">
             {sites.map((s) => (
               <option key={s} value={s} />
             ))}
           </datalist>
-          <button type="button" className="small-button" onClick={addGps}>
+          <button
+            type="button"
+            className="small-button"
+            onClick={addGps}
+            disabled={gpsStatus === 'gpsFinding' || gpsStatus === 'gpsAdded'}
+          >
             <Icon icon={MapPin} size="sm" />
             {t.addGps}
           </button>
-          {gpsStatus && <span className="hint">{gpsStatus}</span>}
+          {gpsStatus && (
+            <span className="hint" role="status">
+              {t[gpsStatus]}
+            </span>
+          )}
         </div>
 
         <div className={cls('contractorName')}>
@@ -190,7 +239,9 @@ export function AddEntry({ entries, today, onSave }: Props) {
             list="contractor-list"
             value={form.contractorName}
             onChange={(e) => update({ contractorName: e.target.value })}
+            {...invalid('contractorName')}
           />
+          {fieldError('contractorName')}
           <datalist id="contractor-list">
             {contractors.map((c) => (
               <option key={c} value={c} />
@@ -230,14 +281,14 @@ export function AddEntry({ entries, today, onSave }: Props) {
           {photo && <span className="hint">{t.photoAdded}</span>}
         </div>
 
-        {error && (
+        {Object.keys(problems).length > 0 && (
           <p className="error" role="alert">
-            {error}
+            {t.required}
           </p>
         )}
-        <button type="submit" className="big-button primary">
+        <button type="submit" className="big-button primary" disabled={saving} aria-disabled={saving}>
           <Icon icon={Save} />
-          {t.save}
+          {saving ? t.saving : t.save}
         </button>
       </form>
     </main>
