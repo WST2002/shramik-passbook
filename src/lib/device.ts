@@ -73,7 +73,7 @@ export async function compressPhoto(file: File, maxSide = 1024): Promise<Blob> {
 }
 
 export function waNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, '');
+  const digits = phone.replace(/\D/g, '').replace(/^00/, '').replace(/^0(?=\d{10}$)/, '');
   return digits.length === 10 ? `91${digits}` : digits;
 }
 
