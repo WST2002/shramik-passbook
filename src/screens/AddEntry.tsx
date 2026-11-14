@@ -134,7 +134,7 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
 
       <section className="voice-box">
         {isSpeechSupported() ? (
-          <button type="button" className="big-button voice" onClick={speak} disabled={listening}>
+          <button type="button" className="big-button primary" onClick={speak} disabled={listening}>
             <Icon icon={Mic} />
             {listening ? t.listening : t.speak}
           </button>
