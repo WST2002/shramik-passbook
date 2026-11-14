@@ -60,7 +60,7 @@ function buildEntries(prefix: string, jobs: DemoJob[], today: string, seed: numb
 export function demoWorkers(today: string): DemoWorker[] {
   return [
     {
-      profile: { name: 'रामू प्रजापति (डेमो)', phone: '' },
+      profile: { name: 'रामू प्रजापति', phone: '' },
       entries: buildEntries(
         'r',
         [
@@ -73,7 +73,7 @@ export function demoWorkers(today: string): DemoWorker[] {
       ),
     },
     {
-      profile: { name: 'सुनीता देवी (डेमो)', phone: '' },
+      profile: { name: 'सुनीता देवी', phone: '' },
       entries: buildEntries(
         's',
         [
@@ -85,7 +85,7 @@ export function demoWorkers(today: string): DemoWorker[] {
       ),
     },
     {
-      profile: { name: 'मोहम्मद आरिफ़ (डेमो)', phone: '' },
+      profile: { name: 'मोहम्मद आरिफ़', phone: '' },
       entries: buildEntries(
         'a',
         [
