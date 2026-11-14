@@ -125,6 +125,7 @@ export function markConfirmed(
   const next = entries.map((entry) => {
     if (!wanted.has(entry.id)) return entry;
     applied += 1;
+    if (entry.confirmation) return entry;
     return { ...entry, confirmation: { confirmedAt, contractorName: entry.contractorName } };
   });
   return { entries: next, applied };

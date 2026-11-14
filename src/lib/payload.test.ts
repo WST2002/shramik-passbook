@@ -115,4 +115,11 @@ describe('markConfirmed', () => {
     expect(result.entries[0].confirmation).toBeUndefined();
     expect(result.entries[1].confirmation).toEqual({ confirmedAt: '2026-11-03T00:00:00.000Z', contractorName: 'रमेश' });
   });
+
+  it('keeps the first confirmation time when the same code is applied again', () => {
+    const first = markConfirmed([workEntry('aaaaaa', '2026-11-01')], ['aaaaaa'], '2026-11-03T00:00:00.000Z');
+    const again = markConfirmed(first.entries, ['aaaaaa'], '2026-11-20T00:00:00.000Z');
+    expect(again.applied).toBe(1);
+    expect(again.entries[0].confirmation?.confirmedAt).toBe('2026-11-03T00:00:00.000Z');
+  });
 });
