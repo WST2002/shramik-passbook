@@ -79,42 +79,44 @@ export function Registration({ profile, entries, today }: Props) {
           </div>
         </dl>
         <p className="summary-totals">{t.summaryTotals(count.totalDays, count.confirmedDays)}</p>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">{t.colSite}</th>
-              <th scope="col">{t.colContractor}</th>
-              <th scope="col">{t.colDates}</th>
-              <th scope="col">{t.colDays}</th>
-              <th scope="col">{t.colConfirmed}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.map((group) => (
-              <tr key={`${group.site}|${group.contractor}`}>
-                <td>{group.site || '—'}</td>
-                <td>
-                  {group.contractor}
-                  {group.phone && <span className="muted"> ({group.phone})</span>}
-                </td>
-                <td>
-                  <strong>
-                    {formatDate(group.from, locale)} – {formatDate(group.to, locale)}
-                  </strong>
-                  <span className="date-list">
-                    {group.dates
-                      .map((d) => (group.confirmedDates.includes(d) ? `${shortDate(d)} ✓` : shortDate(d)))
-                      .join(', ')}
-                  </span>
-                </td>
-                <td>{group.days}</td>
-                <td className={group.confirmedDays === group.days ? 'all-confirmed' : ''}>
-                  {t.confirmedOf(group.confirmedDays, group.days)}
-                </td>
+        <div className="table-scroll" role="region" aria-labelledby="summary-title" tabIndex={0}>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">{t.colSite}</th>
+                <th scope="col">{t.colContractor}</th>
+                <th scope="col">{t.colDates}</th>
+                <th scope="col">{t.colDays}</th>
+                <th scope="col">{t.colConfirmed}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {groups.map((group) => (
+                <tr key={`${group.site}|${group.contractor}`}>
+                  <td>{group.site || '—'}</td>
+                  <td>
+                    {group.contractor}
+                    {group.phone && <span className="muted"> ({group.phone})</span>}
+                  </td>
+                  <td>
+                    <strong>
+                      {formatDate(group.from, locale)} – {formatDate(group.to, locale)}
+                    </strong>
+                    <span className="date-list">
+                      {group.dates
+                        .map((d) => (group.confirmedDates.includes(d) ? `${shortDate(d)} ✓` : shortDate(d)))
+                        .join(', ')}
+                    </span>
+                  </td>
+                  <td>{group.days}</td>
+                  <td className={group.confirmedDays === group.days ? 'all-confirmed' : ''}>
+                    {t.confirmedOf(group.confirmedDays, group.days)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p className="signature">{t.signature}: ______________________</p>
       </article>
     </main>

@@ -840,6 +840,10 @@ fieldset > legend + * {
   font-weight: 700;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 .summary table {
   width: 100%;
   border-collapse: collapse;
@@ -927,6 +931,10 @@ fieldset > legend + * {
 
   .summary table {
     font-size: 10pt;
+  }
+
+  .table-scroll {
+    overflow: visible;
   }
 
   tr {
