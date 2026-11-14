@@ -2,6 +2,8 @@ import { createContext, useContext } from 'react';
 import type { Lang } from './lib/storage';
 import type { EvidenceLevel, WorkType } from './lib/types';
 
+const enDays = (n: number) => `${n} ${n === 1 ? 'day' : 'days'}`;
+
 const hi = {
   appName: 'श्रमिक पासबुक',
   tagline: 'मेरे काम का रिकॉर्ड, मेरे फ़ोन में',
@@ -64,7 +66,7 @@ const hi = {
   paid: 'मिले',
   agreed: 'तय',
   totalPending: 'कुल बाकी पैसा',
-  days: 'दिन',
+  days: (n: number) => `${n} दिन`,
   chooseContractor: 'किस ठेकेदार से पुष्टि लेनी है?',
   unconfirmedDays: (n: number) => `${n} दिन बिना पुष्टि`,
   allConfirmed: 'सब दिन पुष्टि हो चुके हैं।',
@@ -75,7 +77,7 @@ const hi = {
   codePlaceholder: 'संदेश या कोड (SP1-…)',
   applyCode: 'पुष्टि जोड़ें',
   codeBad: 'कोड सही नहीं है। पूरा संदेश फिर से चिपकाएँ।',
-  codeApplied: (n: number) => `${n} दिनों पर “ठेकेदार ने पुष्टि की” लग गया।`,
+  codeApplied: (n: number) => `${n} ${n === 1 ? 'दिन' : 'दिनों'} पर “ठेकेदार ने पुष्टि की” लग गया।`,
   codeUnknown: 'ये दिन इस फ़ोन के रिकॉर्ड में नहीं मिले।',
   askMessage: (contractor: string, worker: string, n: number, url: string) =>
     `नमस्ते ${contractor} जी, मैं ${worker}। मैंने आपके यहाँ ${n} दिन काम किया। कृपया इस लिंक पर दिन देखकर पुष्टि करें (1 मिनट):\n${url}`,
@@ -172,7 +174,7 @@ const en: Dict = {
   totalDays: 'Total work days (12 months)',
   selfReported: 'Self-reported only',
   withPhoto: 'With photo',
-  remaining: (n: number) => `${n} more days needed for registration`,
+  remaining: (n: number) => `${n} more ${n === 1 ? 'day' : 'days'} needed for registration`,
   readyLine: '90 days done! Get ready to register',
   confirmHint: 'Confirmed days make your claim stronger.',
   addToday: "Add today's work",
@@ -215,9 +217,9 @@ const en: Dict = {
   paid: 'Paid',
   agreed: 'Agreed',
   totalPending: 'Total pending wages',
-  days: 'days',
+  days: enDays,
   chooseContractor: 'Which contractor should confirm?',
-  unconfirmedDays: (n: number) => `${n} days not confirmed`,
+  unconfirmedDays: (n: number) => `${enDays(n)} not confirmed`,
   allConfirmed: 'All days are confirmed.',
   selectDays: 'Which days to send?',
   sendWhatsapp: 'Send on WhatsApp',
@@ -226,10 +228,10 @@ const en: Dict = {
   codePlaceholder: 'Message or code (SP1-…)',
   applyCode: 'Add confirmation',
   codeBad: 'The code is not valid. Paste the whole message again.',
-  codeApplied: (n: number) => `${n} days are now marked "confirmed by contractor".`,
+  codeApplied: (n: number) => `${enDays(n)} ${n === 1 ? 'is' : 'are'} now marked "confirmed by contractor".`,
   codeUnknown: 'These days were not found in the record on this phone.',
   askMessage: (contractor: string, worker: string, n: number, url: string) =>
-    `Namaste ${contractor} ji, this is ${worker}. I worked ${n} days at your site. Please check the days and confirm on this link (1 minute):\n${url}`,
+    `Namaste ${contractor} ji, this is ${worker}. I worked ${enDays(n)} at your site. Please check the days and confirm on this link (1 minute):\n${url}`,
   confirmTitle: (worker: string) => `Work days of ${worker}`,
   confirmIntro: (contractor: string) =>
     `${contractor} ji, this worker has recorded working for you on the days below. Keep ✓ on the days that are correct.`,
@@ -242,7 +244,7 @@ const en: Dict = {
   confirmPrivacy: 'This page saves nothing. Your details go nowhere.',
   confirmBadLink: 'This link did not open fully. Ask the worker to send it again.',
   replyMessage: (contractor: string, worker: string, n: number, code: string, url: string) =>
-    `${contractor} confirmed ${n} work days of ${worker}.\nCode: ${code}\nOpen in Shramik Passbook: ${url}`,
+    `${contractor} confirmed ${n} work ${n === 1 ? 'day' : 'days'} of ${worker}.\nCode: ${code}\nOpen in Shramik Passbook: ${url}`,
   regTitle: 'Getting ready for UP BOCW registration',
   regIntro: 'To register with the UP Building and Other Construction Workers Welfare Board you need:',
   regAge: 'Age 18 to 60 years',
@@ -267,8 +269,8 @@ const en: Dict = {
   colDates: 'Dates',
   colDays: 'Days',
   colConfirmed: 'Confirmed',
-  confirmedOf: (c: number, t: number) => `${c} / ${t} days`,
-  summaryTotals: (total: number, confirmed: number) => `Total ${total} days, of which ${confirmed} confirmed by contractors.`,
+  confirmedOf: (c: number, t: number) => `${c} / ${enDays(t)}`,
+  summaryTotals: (total: number, confirmed: number) => `Total ${enDays(total)}, of which ${confirmed} confirmed by contractors.`,
   signature: 'Worker signature / thumb impression',
   profile: 'My details',
   demoMode: 'Sample data (demo)',

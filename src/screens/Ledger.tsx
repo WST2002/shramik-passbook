@@ -21,7 +21,7 @@ export function Ledger({ entries }: { entries: WorkEntry[] }) {
           <li key={row.contractor} className="ledger-card">
             <h2>{row.contractor}</h2>
             <p className="muted">
-              {row.days} {t.days}
+              {t.days(row.days)}
             </p>
             <dl>
               <div>
