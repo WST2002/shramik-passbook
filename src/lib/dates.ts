@@ -13,6 +13,10 @@ export function addDays(isoDate: string, days: number): string {
   return fromUtc(toUtc(isoDate) + days * DAY_MS);
 }
 
+export function weekdayOf(isoDate: string): number {
+  return new Date(toUtc(isoDate)).getUTCDay();
+}
+
 export function daysBetween(fromIso: string, toIso: string): number {
   return Math.round((toUtc(toIso) - toUtc(fromIso)) / DAY_MS);
 }

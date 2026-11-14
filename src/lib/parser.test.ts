@@ -92,4 +92,16 @@ describe('parseEntryText', () => {
   it('returns an empty object for empty input', () => {
     expect(parseEntryText('   ', TODAY)).toEqual({});
   });
+
+  it('reads weekday names as the latest such day, today included', () => {
+    expect(parseEntryText('सोमवार को बेलदारी', TODAY).date).toBe('2026-11-09');
+    expect(parseEntryText('ravivar ko kaam', TODAY).date).toBe('2026-11-08');
+    expect(parseEntryText('बृहस्पतिवार को पुताई', TODAY).date).toBe('2026-11-12');
+    expect(parseEntryText('शनिवार को पुताई', TODAY).date).toBe(TODAY);
+  });
+
+  it('reads Bhojpuri day words', () => {
+    expect(parseEntryText('काल्ह मिस्त्री के काम', TODAY).date).toBe('2026-11-13');
+    expect(parseEntryText('आजु बेलदारी', TODAY).date).toBe(TODAY);
+  });
 });

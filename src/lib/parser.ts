@@ -1,4 +1,4 @@
-import { addDays, dayOfMonthOnOrBefore } from './dates';
+import { addDays, dayOfMonthOnOrBefore, weekdayOf } from './dates';
 import type { WorkType } from './types';
 
 export interface ParsedEntry {
@@ -122,9 +122,18 @@ export function wordsToNumber(words: string[]): number | undefined {
   return consumed ? Math.round(total + current) : undefined;
 }
 
-const TODAY_WORDS = keySet('aaj aj आज');
-const YESTERDAY_WORDS = keySet('kal कल');
+const TODAY_WORDS = keySet('aaj aj aaju आज आजु');
+const YESTERDAY_WORDS = keySet('kal kalh kaalh कल काल्ह');
 const DAY_BEFORE_WORDS = keySet('parson parso परसों परसो');
+const WEEKDAY_WORDS = [
+  'ravivar raviwar itvaar itwar रविवार इतवार',
+  'somvar somwar सोमवार',
+  'mangalvar mangalwar मंगलवार',
+  'budhvar budhwar बुधवार',
+  'guruvar guruwar brihaspativar वीरवार गुरुवार बृहस्पतिवार बीफे',
+  'shukravar shukrawar शुक्रवार',
+  'shanivar shaniwar सनिच्चर शनिवार',
+].map(keySet);
 const DATE_OF_MONTH_WORDS = keySet('tarikh tareekh tarik तारीख तारिख');
 
 const PAID_WORDS = keySet('mile mila mil milay diye diya dia दिए दिये दिया मिले मिला मिल paid');
@@ -193,6 +202,7 @@ function isKeyword(norm: string): boolean {
     YESTERDAY_WORDS.has(norm) ||
     DAY_BEFORE_WORDS.has(norm) ||
     DATE_OF_MONTH_WORDS.has(norm) ||
+    WEEKDAY_WORDS.some((words) => words.has(norm)) ||
     PAID_WORDS.has(norm) ||
     PENDING_WORDS.has(norm) ||
     AGREED_WORDS.has(norm) ||
@@ -309,6 +319,8 @@ function findDate(tokens: Token[], today: string): string | undefined {
     if (TODAY_WORDS.has(norm)) return today;
     if (YESTERDAY_WORDS.has(norm)) return addDays(today, -1);
     if (DAY_BEFORE_WORDS.has(norm)) return addDays(today, -2);
+    const weekday = WEEKDAY_WORDS.findIndex((words) => words.has(norm));
+    if (weekday >= 0) return addDays(today, -((weekdayOf(today) - weekday + 7) % 7));
   }
   return undefined;
 }
