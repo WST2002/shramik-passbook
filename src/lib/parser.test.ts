@@ -130,4 +130,26 @@ describe('parseEntryText', () => {
   it('does not add a count of days to the wage', () => {
     expect(parseEntryText('kal mistri ka kaam, dedh hazaar do din ke', TODAY).wageAgreed).toBe(1500);
   });
+
+  it('reads a contractor named with ji or sahab and ke yahan', () => {
+    expect(parseEntryText('शर्मा जी के यहाँ पुताई की, 600', TODAY).contractorName).toBe('शर्मा');
+    expect(parseEntryText('kal Verma sahab ke saath wiring ka kaam', TODAY).contractorName).toBe('Verma');
+    expect(parseEntryText('काल्ह सिंह साहब के इहाँ लेबर के काम', TODAY).contractorName).toBe('सिंह');
+    expect(parseEntryText('आज मालिक सेठ रामलाल के यहाँ मिस्त्री', TODAY).contractorName).toBe('रामलाल');
+  });
+
+  it('does not take Bhojpuri pronouns or day words as names or sites', () => {
+    const result = parseEntryText('काल्ह हमरा रामू ठीकेदार के इहाँ मिस्त्री के काम कइलीं', TODAY);
+    expect(result.contractorName).toBe('रामू');
+    expect(parseEntryText('आजु बलिया में मिस्त्री के काम', TODAY).site).toBe('बलिया');
+  });
+
+  it('reads a site said with ke paas or wali site par', () => {
+    expect(parseEntryText('कल चारबाग स्टेशन के पास मिस्त्री का काम', TODAY).site).toBe('चारबाग स्टेशन');
+    expect(parseEntryText('आज जानकीपुरम वाली साइट पर मिस्त्री का काम', TODAY).site).toBe('जानकीपुरम');
+  });
+
+  it('does not take talk about money as a site', () => {
+    expect(parseEntryText('चार सौ पचास, पैसे बाद में मिलेंगे', TODAY).site).toBeUndefined();
+  });
 });

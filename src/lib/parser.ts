@@ -141,9 +141,14 @@ const PENDING_WORDS = keySet('baaki baki baqi bakaya udhar pending बाकी 
 const AGREED_WORDS = keySet('tay tai tey fix fixed rate dihadi dihari mazdoori majdoori तय फिक्स रेट दिहाड़ी दिहाडी मजदूरी मज़दूरी');
 
 const CONTRACTOR_WORDS = keySet('thekedar thekedaar thekadar contractor malik seth ठेकेदार ठीकेदार कॉन्ट्रैक्टर मालिक सेठ');
-const HONORIFICS = keySet('ji जी sahab saheb साहब bhai भाई');
+const HONORIFICS = keySet('ji jee जी sahab saheb साहब bhai bhaiya भाई भैया');
 const LOCATION_AFTER_WORDS = keySet('mein me mai main pe par में मे पे पर');
+const NEAR_WORDS = keySet('paas pass पास');
 const SITE_BEFORE_WORDS = keySet('site saait साइट');
+const WALA_WORDS = keySet('wala wale wali वाला वाले वाली');
+const OF_WORDS = keySet('ke ka ki के का की');
+const EMPLOYER_PLACE_WORDS = keySet('yahan yaha ihan यहाँ यहां इहाँ');
+const WITH_WORDS = keySet('saath sath saathe साथ साथे');
 
 const WORK_TYPE_WORDS: Record<Exclude<WorkType, 'other'>, Set<string>> = {
   mason: keySet('mistri mistry mistree raj mason chinai मिस्त्री मिस्तरी राजमिस्त्री राज चिनाई'),
@@ -157,7 +162,9 @@ const WORK_TYPE_WORDS: Record<Exclude<WorkType, 'other'>, Set<string>> = {
 const STOP_WORDS = keySet(
   'ke ka ki ko ne se ho hai tha thi the aur kaam kam kiya kia kari kara karke hua hue hui yahan yaha wahan saath sath ' +
     'wala wale wali din roz roj rupaye rupay rupees rupye rs ru re ek ' +
-    'के का की को ने से हो है था थी थे और काम किया करी करके हुआ हुए हुई यहाँ यहां वहाँ साथ वाला वाले वाली दिन रोज़ रोज रुपये रुपए रूपए रुपया',
+    'के का की को ने से हो है था थी थे और काम किया करी करके हुआ हुए हुई यहाँ यहां वहाँ साथ वाला वाले वाली दिन रोज़ रोज रुपये रुपए रूपए रुपया ' +
+    'hum humra hamar ihan paise paisa baad number naam हम हमरा हमार हमनी इहाँ उहाँ साथे कइलीं कइली कइनी कइल रहल रहे बा गइल ' +
+    'पैसे पैसा पइसा बाद नंबर नाम',
 );
 
 const DAY_COUNT_WORDS = keySet('din dino dinon दिन दिनों');
@@ -214,6 +221,7 @@ function isKeyword(norm: string): boolean {
     CONTRACTOR_WORDS.has(norm) ||
     HONORIFICS.has(norm) ||
     LOCATION_AFTER_WORDS.has(norm) ||
+    NEAR_WORDS.has(norm) ||
     SITE_BEFORE_WORDS.has(norm) ||
     workTypeOf(norm) !== undefined
   );
@@ -304,16 +312,31 @@ function classify(tokens: Token[], groups: NumberGroup[], index: number): Role |
   return undefined;
 }
 
+function nameEndingAt(tokens: Token[], end: number): number[] {
+  if (!isNameLike(tokens[end])) return [];
+  return isNameLike(tokens[end - 1]) ? [end - 1, end] : [end];
+}
+
 function findContractor(tokens: Token[]): number[] {
   const k = tokens.findIndex((t) => CONTRACTOR_WORDS.has(t.norm));
-  if (k < 0) return [];
-  let before = k - 1;
-  while (before >= 0 && HONORIFICS.has(tokens[before].norm)) before -= 1;
-  if (isNameLike(tokens[before])) {
-    return isNameLike(tokens[before - 1]) ? [before - 1, before] : [before];
+  if (k >= 0) {
+    let before = k - 1;
+    while (before >= 0 && HONORIFICS.has(tokens[before].norm)) before -= 1;
+    if (isNameLike(tokens[before])) return nameEndingAt(tokens, before);
+    let after = k + 1;
+    while (after < tokens.length && (CONTRACTOR_WORDS.has(tokens[after].norm) || HONORIFICS.has(tokens[after].norm))) after += 1;
+    if (isNameLike(tokens[after])) {
+      return isNameLike(tokens[after + 1]) ? [after, after + 1] : [after];
+    }
+    return [];
   }
-  if (isNameLike(tokens[k + 1])) {
-    return isNameLike(tokens[k + 2]) ? [k + 1, k + 2] : [k + 1];
+  for (let i = 1; i + 1 < tokens.length; i += 1) {
+    if (!OF_WORDS.has(tokens[i].norm)) continue;
+    const place = tokens[i + 1].norm;
+    if (HONORIFICS.has(tokens[i - 1].norm) && (EMPLOYER_PLACE_WORDS.has(place) || WITH_WORDS.has(place))) {
+      return nameEndingAt(tokens, i - 2);
+    }
+    if (EMPLOYER_PLACE_WORDS.has(place)) return nameEndingAt(tokens, i - 1);
   }
   return [];
 }
@@ -328,9 +351,12 @@ function findSite(tokens: Token[], taken: Set<number>): string | undefined {
       }
       if (words.length) return words.join(' ');
     }
-    if (LOCATION_AFTER_WORDS.has(tokens[i].norm)) {
+    const near = NEAR_WORDS.has(tokens[i].norm) && OF_WORDS.has(tokens[i - 1]?.norm ?? '');
+    if (LOCATION_AFTER_WORDS.has(tokens[i].norm) || near) {
+      let end = near ? i - 2 : i - 1;
+      if (SITE_BEFORE_WORDS.has(tokens[end]?.norm ?? '') && WALA_WORDS.has(tokens[end - 1]?.norm ?? '')) end -= 2;
       const words: string[] = [];
-      for (let j = i - 1; j >= 0 && words.length < 3 && usable(j); j -= 1) {
+      for (let j = end; j >= 0 && words.length < 3 && usable(j); j -= 1) {
         words.unshift(tokens[j].raw);
       }
       if (words.length) return words.join(' ');
