@@ -105,9 +105,12 @@ export default function App() {
   const code = codeFromHash(hash);
   const route: Route = code ? 'confirm' : routeFromHash(hash);
   const screenKey = `${activeProfile ? route : 'welcome'}:${demo ? demo.index : 'real'}`;
-  const screenChangedAt = useRef(0);
+  const shownScreen = useRef(screenKey);
+  const screenChangedAt = useRef(-Infinity);
 
   useEffect(() => {
+    if (shownScreen.current === screenKey) return;
+    shownScreen.current = screenKey;
     screenChangedAt.current = performance.now();
     window.scrollTo(0, 0);
   }, [screenKey]);
