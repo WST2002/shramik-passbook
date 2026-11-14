@@ -178,7 +178,6 @@ export default function App() {
           <AddEntry
             entries={activeEntries}
             today={today}
-            onBack={back}
             onSave={async (entry, photo) => {
               if (photo && entry.photo && !demo) await savePhoto(entry.photo.id, photo);
               await updateEntries([...activeEntries, entry]);
@@ -192,7 +191,6 @@ export default function App() {
           <DaysList
             entries={activeEntries}
             demo={Boolean(demo)}
-            onBack={back}
             onDelete={(id) => {
               const removed = activeEntries.find((e) => e.id === id);
               if (removed?.photo && !demo) void deletePhoto(removed.photo.id);
@@ -201,7 +199,7 @@ export default function App() {
           />
         );
       case 'ledger':
-        return <Ledger entries={activeEntries} onBack={back} />;
+        return <Ledger entries={activeEntries} />;
       case 'confirm':
         return (
           <ConfirmRequest
@@ -209,7 +207,6 @@ export default function App() {
             profile={activeProfile}
             entries={activeEntries}
             initialCode={code}
-            onBack={() => go('home')}
             onApplyCode={(ids) => {
               const result = markConfirmed(activeEntries, ids, new Date().toISOString());
               if (result.applied) void updateEntries(result.entries);
@@ -218,7 +215,7 @@ export default function App() {
           />
         );
       case 'register':
-        return <Registration profile={activeProfile} entries={activeEntries} today={today} onBack={back} />;
+        return <Registration profile={activeProfile} entries={activeEntries} today={today} />;
       case 'settings':
         return (
           <Settings
@@ -227,7 +224,6 @@ export default function App() {
             entries={activeEntries}
             today={today}
             demo={Boolean(demo)}
-            onBack={back}
             onSaveProfile={(p) => {
               saveProfile(p);
               setProfile(p);

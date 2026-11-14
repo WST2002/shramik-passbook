@@ -4,13 +4,13 @@ import { rupees } from '../lib/format';
 import { wageLedger } from '../lib/ledger';
 import type { WorkEntry } from '../lib/types';
 
-export function Ledger({ entries, onBack }: { entries: WorkEntry[]; onBack: () => void }) {
+export function Ledger({ entries }: { entries: WorkEntry[] }) {
   const { t, lang } = useI18n();
   const { rows, totalPending } = wageLedger(entries);
 
   return (
     <main className="screen">
-      <ScreenHeader title={t.ledger} onBack={onBack} />
+      <ScreenHeader title={t.ledger} />
       <section className="total-card">
         <span>{t.totalPending}</span>
         <strong className={totalPending > 0 ? 'owed' : ''}>{rupees(totalPending, lang)}</strong>

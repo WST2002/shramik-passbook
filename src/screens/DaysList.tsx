@@ -8,17 +8,16 @@ interface Props {
   entries: WorkEntry[];
   demo: boolean;
   onDelete: (id: string) => void;
-  onBack: () => void;
 }
 
-export function DaysList({ entries, demo, onDelete, onBack }: Props) {
+export function DaysList({ entries, demo, onDelete }: Props) {
   const { t, lang } = useI18n();
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
   const locale = lang === 'hi' ? 'hi-IN' : 'en-IN';
 
   return (
     <main className="screen">
-      <ScreenHeader title={t.myDays} onBack={onBack} />
+      <ScreenHeader title={t.myDays} />
       {sorted.length === 0 && <p className="empty">{t.noDays}</p>}
       <ul className="day-list">
         {sorted.map((entry) => (

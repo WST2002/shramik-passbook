@@ -24,10 +24,9 @@ interface Props {
   onDemo: (on: boolean) => void;
   onDeleteAll: () => void;
   onRestore: (text: string) => Promise<void>;
-  onBack: () => void;
 }
 
-export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo, onDeleteAll, onRestore, onBack }: Props) {
+export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo, onDeleteAll, onRestore }: Props) {
   const { t } = useI18n();
   const [name, setName] = useState(profile.name);
   const [phone, setPhone] = useState(profile.phone);
@@ -38,7 +37,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
 
   return (
     <main className="screen">
-      <ScreenHeader title={t.settings} onBack={onBack} />
+      <ScreenHeader title={t.settings} />
 
       {!demo && (
         <form

@@ -10,10 +10,9 @@ interface Props {
   profile: Profile;
   entries: WorkEntry[];
   today: string;
-  onBack: () => void;
 }
 
-export function Registration({ profile, entries, today, onBack }: Props) {
+export function Registration({ profile, entries, today }: Props) {
   const { t, lang } = useI18n();
   const locale = lang === 'hi' ? 'hi-IN' : 'en-IN';
   const count = countWorkDays(entries, today);
@@ -33,7 +32,7 @@ export function Registration({ profile, entries, today, onBack }: Props) {
   return (
     <main className="screen">
       <div className="no-print">
-        <ScreenHeader title={t.registration} onBack={onBack} />
+        <ScreenHeader title={t.registration} />
         <section className="panel">
           <h2>{t.regTitle}</h2>
           <p>{t.regIntro}</p>

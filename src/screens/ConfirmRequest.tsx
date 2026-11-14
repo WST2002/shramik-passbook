@@ -20,10 +20,9 @@ interface Props {
   entries: WorkEntry[];
   initialCode?: string;
   onApplyCode: (ids: string[]) => number;
-  onBack: () => void;
 }
 
-export function ConfirmRequest({ profile, entries, initialCode, onApplyCode, onBack }: Props) {
+export function ConfirmRequest({ profile, entries, initialCode, onApplyCode }: Props) {
   const { t, lang } = useI18n();
   const locale = lang === 'hi' ? 'hi-IN' : 'en-IN';
   const [contractor, setContractor] = useState<string>();
@@ -79,7 +78,7 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode, onB
 
   return (
     <main className="screen">
-      <ScreenHeader title={t.askConfirm} onBack={onBack} />
+      <ScreenHeader title={t.askConfirm} />
 
       <section className="panel">
         <h2>{t.haveCode}</h2>

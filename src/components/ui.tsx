@@ -1,4 +1,4 @@
-import { ArrowLeft, Camera, Check, Pencil, type LucideIcon } from 'lucide-react';
+import { Camera, Check, Pencil, type LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { evidenceLevel, REQUIRED_DAYS } from '../lib/counter';
@@ -11,13 +11,9 @@ export function Icon({ icon: Glyph, size = 'md' }: { icon: LucideIcon; size?: ke
   return <Glyph className="icon" size={ICON_SIZES[size]} strokeWidth={2} absoluteStrokeWidth aria-hidden="true" focusable="false" />;
 }
 
-export function ScreenHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  const { t } = useI18n();
+export function ScreenHeader({ title }: { title: string }) {
   return (
     <div className="screen-header">
-      <button type="button" className="back-button" onClick={onBack} aria-label={t.back}>
-        <Icon icon={ArrowLeft} />
-      </button>
       <h1>{title}</h1>
     </div>
   );

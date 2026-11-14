@@ -14,7 +14,6 @@ interface Props {
   entries: WorkEntry[];
   today: string;
   onSave: (entry: WorkEntry, photo?: Blob) => Promise<void>;
-  onBack: () => void;
 }
 
 function initialForm(entries: WorkEntry[], today: string): EntryFormState {
@@ -30,7 +29,7 @@ function initialForm(entries: WorkEntry[], today: string): EntryFormState {
   };
 }
 
-export function AddEntry({ entries, today, onSave, onBack }: Props) {
+export function AddEntry({ entries, today, onSave }: Props) {
   const { t, lang } = useI18n();
   const [form, setForm] = useState(() => initialForm(entries, today));
   const [filled, setFilled] = useState<Set<keyof EntryFormState>>(new Set());
@@ -110,7 +109,7 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
 
   return (
     <main className="screen">
-      <ScreenHeader title={t.addToday} onBack={onBack} />
+      <ScreenHeader title={t.addToday} />
 
       <section className="voice-box">
         {isSpeechSupported() ? (
