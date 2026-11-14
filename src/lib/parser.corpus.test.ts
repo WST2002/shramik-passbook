@@ -5,13 +5,13 @@ import { CORPUS_TODAY, PARSER_CORPUS } from './parser.corpus';
 const FIELDS: (keyof ParsedEntry)[] = ['date', 'workType', 'site', 'contractorName', 'contractorPhone', 'wageAgreed', 'wagePaid'];
 
 const MIN_ACCURACY: Record<keyof ParsedEntry, number> = {
-  date: 0.78,
+  date: 1,
   workType: 1,
-  site: 0.89,
-  contractorName: 0.89,
-  contractorPhone: 0.99,
-  wageAgreed: 0.92,
-  wagePaid: 0.85,
+  site: 0.98,
+  contractorName: 1,
+  contractorPhone: 1,
+  wageAgreed: 1,
+  wagePaid: 1,
 };
 
 const results = PARSER_CORPUS.map(({ text, expected }) => ({ text, expected, parsed: parseEntryText(text, CORPUS_TODAY) }));
@@ -29,7 +29,6 @@ describe('parser corpus', () => {
     const misses = results
       .filter((r) => r.parsed[field] !== r.expected[field])
       .map((r) => `${r.text} | expected ${r.expected[field]} got ${r.parsed[field]}`);
-    if (process.env.CORPUS_REPORT) console.log(`${field}: ${(accuracy(field) * 100).toFixed(1)}%\n${misses.join('\n')}`);
-    expect(accuracy(field)).toBeGreaterThanOrEqual(MIN_ACCURACY[field]);
+    expect(accuracy(field), `${field} misses:\n${misses.join('\n')}`).toBeGreaterThanOrEqual(MIN_ACCURACY[field]);
   });
 });

@@ -142,7 +142,7 @@ export const PARSER_CORPUS: CorpusLine[] = [
   }),
   line('आज ठेकेदार अनिल जी के यहाँ बेलदारी की', { date: TODAY, contractorName: 'अनिल', workType: 'helper' }),
   line('आज सात सौ', { date: TODAY, wageAgreed: 700 }),
-  line('कल का काम, 600 रुपये, सब मिल गए', { date: YESTERDAY, wageAgreed: 600 }),
+  line('कल का काम, 600 रुपये, सब मिल गए', { date: YESTERDAY, wageAgreed: 600, wagePaid: 600 }),
   line('सोमवार को पुताई, सलीम ठेकेदार, 550', { date: MON, workType: 'painter', contractorName: 'सलीम', wageAgreed: 550 }),
   line('आज विनोद शर्मा ठेकेदार के यहाँ कानपुर रोड पर मिस्त्री का काम, सात सौ', {
     date: TODAY, contractorName: 'विनोद शर्मा', site: 'कानपुर रोड', workType: 'mason', wageAgreed: 700,
@@ -198,7 +198,7 @@ export const PARSER_CORPUS: CorpusLine[] = [
   }),
   line('आजु देवरिया में नल के काम, सात सौ पचास', { date: TODAY, site: 'देवरिया', workType: 'plumber', wageAgreed: 750 }),
   line('काल्ह सिंह साहब के इहाँ लेबर के काम, चार सौ, सब मिल गइल', {
-    date: YESTERDAY, contractorName: 'सिंह', workType: 'helper', wageAgreed: 400,
+    date: YESTERDAY, contractorName: 'सिंह', workType: 'helper', wageAgreed: 400, wagePaid: 400,
   }),
   line('परसो आजमगढ़ में राजमिस्त्री के काम, आठ सौ रुपया तय रहे', {
     date: DAY_BEFORE, site: 'आजमगढ़', workType: 'mason', wageAgreed: 800,

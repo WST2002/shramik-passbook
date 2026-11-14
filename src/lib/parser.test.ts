@@ -152,4 +152,20 @@ describe('parseEntryText', () => {
   it('does not take talk about money as a site', () => {
     expect(parseEntryText('चार सौ पचास, पैसे बाद में मिलेंगे', TODAY).site).toBeUndefined();
   });
+
+  it('records nothing paid when the worker says the money did not come', () => {
+    expect(parseEntryText('कल ६५० तय हुए थे, पैसे नहीं मिले', TODAY)).toMatchObject({ wageAgreed: 650, wagePaid: 0 });
+    expect(parseEntryText('aaj ek hazaar rupaye tay, kuch nahi mila', TODAY)).toMatchObject({ wageAgreed: 1000, wagePaid: 0 });
+    expect(parseEntryText('450, paise baad mein milenge', TODAY)).toMatchObject({ wageAgreed: 450, wagePaid: 0 });
+    expect(parseEntryText('आजु मिस्त्री के काम, सात सौ, पइसा ना मिलल', TODAY)).toMatchObject({ wageAgreed: 700, wagePaid: 0 });
+  });
+
+  it('treats an amount that is all owed as the wage with nothing paid', () => {
+    expect(parseEntryText('बेलदारी, 400, उधार रहा', TODAY)).toMatchObject({ wageAgreed: 400, wagePaid: 0 });
+  });
+
+  it('reads Bhojpuri paid words and fully paid phrases', () => {
+    expect(parseEntryText('सात सौ रुपया तय रहल, पाँच सौ मिलल', TODAY)).toMatchObject({ wageAgreed: 700, wagePaid: 500 });
+    expect(parseEntryText('आठ सौ रुपये पूरे मिल गए', TODAY)).toMatchObject({ wageAgreed: 800, wagePaid: 800 });
+  });
 });

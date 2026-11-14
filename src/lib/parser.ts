@@ -136,7 +136,9 @@ const WEEKDAY_WORDS = [
 ].map(keySet);
 const DATE_OF_MONTH_WORDS = keySet('tarikh tareekh tarik तारीख तारिख');
 
-const PAID_WORDS = keySet('mile mila mil milay diye diya dia दिए दिये दिया मिले मिला मिल paid');
+const PAID_WORDS = keySet('mile mila mil milay milal diye diya dia दिए दिये दिया मिले मिला मिल मिलल मिलले paid');
+const NOT_WORDS = keySet('nahi nahin nhi na न ना नहीं नही');
+const PAID_LATER_WORDS = keySet('milenge milega denge dega मिलेंगे मिलेगा देंगे देगा');
 const PENDING_WORDS = keySet('baaki baki baqi bakaya udhar pending बाकी बाक़ी बकाया उधार');
 const AGREED_WORDS = keySet('tay tai tey fix fixed rate dihadi dihari mazdoori majdoori तय फिक्स रेट दिहाड़ी दिहाडी मजदूरी मज़दूरी');
 
@@ -169,7 +171,10 @@ const STOP_WORDS = keySet(
 
 const DAY_COUNT_WORDS = keySet('din dino dinon दिन दिनों');
 
-const FILLER_AFTER_NUMBER = keySet('rupaye rupay rupees rupye rs ru re hua hue hui hai the ka ki रुपये रुपए रूपए रुपया हुआ हुए हुई है थे का की');
+const FILLER_AFTER_NUMBER = keySet(
+  'rupaye rupay rupees rupye rupya rs ru re hua hue hui hai the ka ki poore pure pura sab ' +
+    'रुपये रुपए रूपए रुपया हुआ हुए हुई है थे का की पूरे पूरा सब',
+);
 
 interface Token {
   raw: string;
@@ -216,6 +221,8 @@ function isKeyword(norm: string): boolean {
     DATE_OF_MONTH_WORDS.has(norm) ||
     WEEKDAY_WORDS.some((words) => words.has(norm)) ||
     PAID_WORDS.has(norm) ||
+    PAID_LATER_WORDS.has(norm) ||
+    NOT_WORDS.has(norm) ||
     PENDING_WORDS.has(norm) ||
     AGREED_WORDS.has(norm) ||
     CONTRACTOR_WORDS.has(norm) ||
@@ -365,6 +372,14 @@ function findSite(tokens: Token[], taken: Set<number>): string | undefined {
   return undefined;
 }
 
+function saysUnpaid(tokens: Token[]): boolean {
+  return tokens.some(
+    ({ norm }, i) =>
+      PAID_LATER_WORDS.has(norm) ||
+      (PAID_WORDS.has(norm) && [tokens[i - 1], tokens[i - 2]].some((t) => t && NOT_WORDS.has(t.norm))),
+  );
+}
+
 function findDate(tokens: Token[], today: string): string | undefined {
   for (const { norm } of tokens) {
     if (TODAY_WORDS.has(norm)) return today;
@@ -421,8 +436,14 @@ export function parseEntryText(text: string, today: string): ParsedEntry {
   if (agreed === undefined && paid !== undefined) {
     agreed = pending !== undefined ? paid + pending : paid;
   }
+  if (agreed === undefined && pending !== undefined) {
+    agreed = pending;
+  }
   if (paid === undefined && agreed !== undefined && pending !== undefined) {
     paid = Math.max(0, agreed - pending);
+  }
+  if (paid === undefined && agreed !== undefined && saysUnpaid(tokens)) {
+    paid = 0;
   }
 
   if (date) result.date = date;
