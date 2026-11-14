@@ -26,6 +26,7 @@ import { DaysList } from './screens/DaysList';
 import { Home } from './screens/Home';
 import { Ledger } from './screens/Ledger';
 import { Registration } from './screens/Registration';
+import { mergeEntries, parseBackup } from './lib/backup';
 import { Settings } from './screens/Settings';
 import { Welcome } from './screens/Welcome';
 
@@ -205,6 +206,19 @@ export default function App() {
               setToast(t.saved);
             }}
             onDemo={(on) => setDemo(on ? { index: 0, workers: demoWorkers(today) } : undefined)}
+            onRestore={async (text) => {
+              try {
+                const backup = parseBackup(text);
+                await updateEntries(mergeEntries(entries, backup.entries));
+                if (!profile) {
+                  saveProfile(backup.profile);
+                  setProfile(backup.profile);
+                }
+                setToast(t.backupRestored);
+              } catch {
+                setToast(t.backupBad);
+              }
+            }}
             onDeleteAll={async () => {
               await deleteAllData(entries);
               setEntries([]);

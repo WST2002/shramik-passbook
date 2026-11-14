@@ -1,9 +1,19 @@
-import { Download, FlaskConical, Save, Trash2 } from 'lucide-react';
+import { Download, FlaskConical, HardDriveDownload, HardDriveUpload, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
+import { makeBackup } from '../lib/backup';
 import { exportCounts } from '../lib/counter';
 import type { Profile, WorkEntry } from '../lib/types';
+
+function saveFile(text: string, filename: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 interface Props {
   profile: Profile;
@@ -13,22 +23,17 @@ interface Props {
   onSaveProfile: (profile: Profile) => void;
   onDemo: (on: boolean) => void;
   onDeleteAll: () => void;
+  onRestore: (text: string) => Promise<void>;
   onBack: () => void;
 }
 
-export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo, onDeleteAll, onBack }: Props) {
+export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo, onDeleteAll, onRestore, onBack }: Props) {
   const { t } = useI18n();
   const [name, setName] = useState(profile.name);
   const [phone, setPhone] = useState(profile.phone);
 
   function download() {
-    const blob = new Blob([JSON.stringify(exportCounts(entries, today), null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `shramik-passbook-summary-${today}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    saveFile(JSON.stringify(exportCounts(entries, today), null, 2), `shramik-passbook-summary-${today}.json`);
   }
 
   return (
@@ -64,6 +69,37 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           {demo ? t.demoOff : t.demoOn}
         </button>
       </section>
+
+      {!demo && (
+        <section className="panel">
+          <h2>{t.backupTitle}</h2>
+          <p className="hint">{t.backupHelp}</p>
+          <button
+            type="button"
+            className="big-button secondary"
+            onClick={() =>
+              saveFile(makeBackup(profile, entries, new Date().toISOString()), `shramik-passbook-backup-${today}.json`)
+            }
+          >
+            <Icon icon={HardDriveDownload} />
+            {t.backupSave}
+          </button>
+          <label className="big-button secondary file-button">
+            <Icon icon={HardDriveUpload} />
+            {t.backupRestore}
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="visually-hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                if (file) await onRestore(await file.text());
+              }}
+            />
+          </label>
+        </section>
+      )}
 
       <section className="panel">
         <h2>{t.exportTitle}</h2>
