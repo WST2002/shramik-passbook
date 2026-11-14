@@ -1,7 +1,7 @@
 {
   "name": "shramik-passbook",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,5 +25,7 @@
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
-  }
+  },
+  "license": "MIT",
+  "description": "Worker-owned record of construction work days with contractor confirmation over WhatsApp, for UP BOCW registration"
 }
