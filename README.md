@@ -45,7 +45,7 @@ Tap "पहले नमूना देखें (डेमो)" on the first s
 
 - The confirmation code has a checksum to catch typing mistakes. It is not a cryptographic signature, so it shows that a contractor was asked and replied on WhatsApp, not tamper-proof proof. The WhatsApp chat itself is the stronger record.
 - Data lives on one phone. Settings → backup saves the whole record to a file the worker keeps, and restore merges it back; without a backup, a lost phone means a lost record.
-- Voice input uses the browser's Web Speech API, which works in Chrome on Android with an internet connection. Typing works everywhere, offline included.
+- Voice input uses the browser's Web Speech API, which works in Chrome on Android with an internet connection. In Chrome the browser sends the spoken audio to Google's speech service to turn it into text; Shramik Passbook itself sends nothing anywhere, and the text is turned into date, site, contractor and wages on the phone. Workers who prefer can type instead, which works everywhere, offline included.
 
 ## Setup
 
