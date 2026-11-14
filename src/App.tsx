@@ -30,6 +30,8 @@ import { mergeEntries, parseBackup } from './lib/backup';
 import { Settings } from './screens/Settings';
 import { Welcome } from './screens/Welcome';
 
+const TAP_GUARD_MS = 350;
+
 interface DemoState {
   index: number;
   workers: DemoWorker[];
@@ -100,6 +102,27 @@ export default function App() {
     [demo],
   );
 
+  const code = codeFromHash(hash);
+  const route: Route = code ? 'confirm' : routeFromHash(hash);
+  const screenKey = `${activeProfile ? route : 'welcome'}:${demo ? demo.index : 'real'}`;
+  const screenChangedAt = useRef(0);
+
+  useEffect(() => {
+    screenChangedAt.current = performance.now();
+    window.scrollTo(0, 0);
+  }, [screenKey]);
+
+  useEffect(() => {
+    const ignoreGhostTap = (event: MouseEvent) => {
+      if (event.detail > 0 && performance.now() - screenChangedAt.current < TAP_GUARD_MS) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+    document.addEventListener('click', ignoreGhostTap, true);
+    return () => document.removeEventListener('click', ignoreGhostTap, true);
+  }, []);
+
   const i18n = useMemo(() => ({ t, lang }), [t, lang]);
 
   function toggleLang() {
@@ -133,9 +156,6 @@ export default function App() {
       </I18nContext.Provider>
     );
   }
-
-  const code = codeFromHash(hash);
-  const route: Route = code ? 'confirm' : routeFromHash(hash);
 
   function screen() {
     if (!activeProfile) {
