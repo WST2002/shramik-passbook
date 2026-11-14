@@ -5,9 +5,10 @@ import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
 import { compressPhoto, currentPosition, isSpeechSupported, listenOnce } from '../lib/device';
 import { WORK_ICONS } from '../lib/format';
+import { parsedPatch, type EntryFormState } from '../lib/entryForm';
 import type { ParsedEntry } from '../lib/parser';
 import { newEntryId } from '../lib/payload';
-import { WORK_TYPES, type GeoPoint, type WorkEntry, type WorkType } from '../lib/types';
+import { WORK_TYPES, type GeoPoint, type WorkEntry } from '../lib/types';
 
 interface Props {
   entries: WorkEntry[];
@@ -16,17 +17,7 @@ interface Props {
   onBack: () => void;
 }
 
-interface FormState {
-  date: string;
-  workType?: WorkType;
-  site: string;
-  contractorName: string;
-  contractorPhone: string;
-  wageAgreed: string;
-  wagePaid: string;
-}
-
-function initialForm(entries: WorkEntry[], today: string): FormState {
+function initialForm(entries: WorkEntry[], today: string): EntryFormState {
   const last = [...entries].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
   return {
     date: today,
@@ -42,7 +33,7 @@ function initialForm(entries: WorkEntry[], today: string): FormState {
 export function AddEntry({ entries, today, onSave, onBack }: Props) {
   const { t, lang } = useI18n();
   const [form, setForm] = useState(() => initialForm(entries, today));
-  const [filled, setFilled] = useState<Set<keyof FormState>>(new Set());
+  const [filled, setFilled] = useState<Set<keyof EntryFormState>>(new Set());
   const [heard, setHeard] = useState('');
   const [listening, setListening] = useState(false);
   const [message, setMessage] = useState('');
@@ -54,25 +45,14 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
   const contractors = [...new Set(entries.map((e) => e.contractorName))];
   const sites = [...new Set(entries.map((e) => e.site).filter(Boolean))];
 
-  const update = (patch: Partial<FormState>) => setForm((f) => ({ ...f, ...patch }));
+  const update = (patch: Partial<EntryFormState>) => setForm((f) => ({ ...f, ...patch }));
 
   async function applyText(text: string) {
     if (!text.trim()) return;
     const parsed: ParsedEntry = await getAgent().parse(text, today);
-    const patch: Partial<FormState> = {};
-    if (parsed.date) patch.date = parsed.date;
-    if (parsed.workType) patch.workType = parsed.workType;
-    if (parsed.site) patch.site = parsed.site;
-    if (parsed.contractorName) {
-      patch.contractorName = parsed.contractorName;
-      const known = entries.find((e) => e.contractorName === parsed.contractorName && e.contractorPhone);
-      if (known && !parsed.contractorPhone) patch.contractorPhone = known.contractorPhone;
-    }
-    if (parsed.contractorPhone) patch.contractorPhone = parsed.contractorPhone;
-    if (parsed.wageAgreed !== undefined) patch.wageAgreed = String(parsed.wageAgreed);
-    if (parsed.wagePaid !== undefined) patch.wagePaid = String(parsed.wagePaid);
+    const patch = parsedPatch(form, parsed, entries);
     update(patch);
-    setFilled(new Set(Object.keys(patch) as (keyof FormState)[]));
+    setFilled(new Set(Object.keys(patch) as (keyof EntryFormState)[]));
     setMessage(Object.keys(patch).length ? t.checkParsed : t.voiceFailed);
   }
 
@@ -126,7 +106,7 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
     await onSave(entry, photo?.blob);
   }
 
-  const cls = (field: keyof FormState) => (filled.has(field) ? 'field filled' : 'field');
+  const cls = (field: keyof EntryFormState) => (filled.has(field) ? 'field filled' : 'field');
 
   return (
     <main className="screen">
