@@ -1,0 +1,16 @@
+{
+  "name": "श्रमिक पासबुक · Shramik Passbook",
+  "short_name": "श्रमिक पासबुक",
+  "description": "Worker-owned record of construction work days with contractor confirmation.",
+  "lang": "hi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8ef",
+  "theme_color": "#0b5d4b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
