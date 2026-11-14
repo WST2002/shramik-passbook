@@ -31,7 +31,7 @@ function addNumberWords(value: number, words: string): void {
 }
 
 addNumberWords(1, 'ek एक');
-addNumberWords(2, 'do दो');
+addNumberWords(2, 'do du दो दू');
 addNumberWords(3, 'teen tin तीन');
 addNumberWords(4, 'char chaar चार');
 addNumberWords(5, 'paanch panch paach पाँच पांच');
@@ -156,7 +156,7 @@ const WORK_TYPE_WORDS: Record<Exclude<WorkType, 'other'>, Set<string>> = {
   mason: keySet('mistri mistry mistree raj mason chinai मिस्त्री मिस्तरी राजमिस्त्री राज चिनाई'),
   helper: keySet('helper beldar beldari mazdoor majdoor labour labor हेल्पर बेलदार बेलदारी मजदूर मज़दूर लेबर'),
   plumber: keySet('plumber plumbing nal प्लंबर प्लम्बर नल'),
-  painter: keySet('painter paint putai rang पेंटर पेंट पुताई रंग'),
+  painter: keySet('painter paint putai rang rangai पेंटर पेंट पुताई रंग रंगाई'),
   carpenter: keySet('carpenter badhai barhai कारपेंटर बढ़ई बढई'),
   electrician: keySet('electrician bijli wiring इलेक्ट्रीशियन बिजली वायरिंग'),
 };

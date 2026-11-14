@@ -168,4 +168,9 @@ describe('parseEntryText', () => {
     expect(parseEntryText('सात सौ रुपया तय रहल, पाँच सौ मिलल', TODAY)).toMatchObject({ wageAgreed: 700, wagePaid: 500 });
     expect(parseEntryText('आठ सौ रुपये पूरे मिल गए', TODAY)).toMatchObject({ wageAgreed: 800, wagePaid: 800 });
   });
+
+  it('reads Bhojpuri du for two and rangai for painting', () => {
+    expect(parseEntryText('काल्ह पुताई, छह सौ, दू सौ बाकी', TODAY)).toMatchObject({ wageAgreed: 600, wagePaid: 400 });
+    expect(parseEntryText('रविवार को रंगाई, सात सौ', TODAY).workType).toBe('painter');
+  });
 });
