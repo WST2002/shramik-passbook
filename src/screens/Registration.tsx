@@ -104,7 +104,7 @@ export function Registration({ profile, entries, today, onBack }: Props) {
                   </strong>
                   <span className="date-list">
                     {group.dates
-                      .map((d) => (group.confirmedDates.includes(d) ? `${shortDate(d)} ✔` : shortDate(d)))
+                      .map((d) => (group.confirmedDates.includes(d) ? `${shortDate(d)} ✓` : shortDate(d)))
                       .join(', ')}
                   </span>
                 </td>
