@@ -1,3 +1,4 @@
+import { BookOpen, CircleCheck, FileText, Plus, Settings, Wallet } from 'lucide-react';
 import { Icon, ProgressRing } from '../components/ui';
 import { useI18n } from '../i18n';
 import { countWorkDays } from '../lib/counter';
@@ -47,30 +48,30 @@ export function Home({ profile, entries, today, go }: Props) {
       </section>
 
       <button type="button" className="big-button primary" onClick={() => go('add')}>
-        <Icon>➕</Icon>
+        <Icon icon={Plus} />
         {t.addToday}
       </button>
       <button type="button" className="big-button confirm" onClick={() => go('confirm')}>
-        <Icon>✅</Icon>
+        <Icon icon={CircleCheck} />
         {t.askConfirm}
       </button>
 
       <div className="tile-grid">
         <button type="button" className="tile" onClick={() => go('days')}>
-          <Icon>📒</Icon>
+          <Icon icon={BookOpen} size="lg" />
           {t.myDays}
         </button>
         <button type="button" className="tile" onClick={() => go('ledger')}>
-          <Icon>💰</Icon>
+          <Icon icon={Wallet} size="lg" />
           {t.ledger}
           {totalPending > 0 && <span className="tile-note">{`${t.pending} ${rupees(totalPending, lang)}`}</span>}
         </button>
         <button type="button" className="tile" onClick={() => go('register')}>
-          <Icon>📄</Icon>
+          <Icon icon={FileText} size="lg" />
           {t.registration}
         </button>
         <button type="button" className="tile" onClick={() => go('settings')}>
-          <Icon>⚙️</Icon>
+          <Icon icon={Settings} size="lg" />
           {t.settings}
         </button>
       </div>

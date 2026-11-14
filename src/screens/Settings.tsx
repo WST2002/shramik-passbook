@@ -1,3 +1,4 @@
+import { Download, FlaskConical, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -49,7 +50,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <p className="hint">{t.phoneHelp}</p>
           <button type="submit" className="big-button primary">
-            <Icon>💾</Icon>
+            <Icon icon={Save} />
             {t.save}
           </button>
         </form>
@@ -59,7 +60,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
         <h2>{t.demoMode}</h2>
         <p className="hint">{t.demoHelp}</p>
         <button type="button" className="big-button secondary" onClick={() => onDemo(!demo)}>
-          <Icon>🧪</Icon>
+          <Icon icon={FlaskConical} />
           {demo ? t.demoOff : t.demoOn}
         </button>
       </section>
@@ -68,7 +69,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
         <h2>{t.exportTitle}</h2>
         <p className="hint">{t.exportHelp}</p>
         <button type="button" className="big-button secondary" onClick={download}>
-          <Icon>⬇️</Icon>
+          <Icon icon={Download} />
           {t.exportButton}
         </button>
       </section>
@@ -83,7 +84,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
               if (window.confirm(t.deleteAllConfirm)) onDeleteAll();
             }}
           >
-            <Icon>🗑️</Icon>
+            <Icon icon={Trash2} />
             {t.deleteAll}
           </button>
         </section>

@@ -24,7 +24,7 @@ export function DaysList({ entries, demo, onDelete, onBack }: Props) {
         {sorted.map((entry) => (
           <li key={entry.id} className={entry.confirmation ? 'day-card confirmed' : 'day-card'}>
             <div className="day-top">
-              <Icon>{WORK_ICONS[entry.workType]}</Icon>
+              <Icon icon={WORK_ICONS[entry.workType]} size="lg" />
               <div className="day-main">
                 <strong>{formatDate(entry.date, locale)}</strong>
                 <span>

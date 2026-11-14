@@ -1,3 +1,4 @@
+import { Check, MessageCircle, ThumbsUp, X } from 'lucide-react';
 import { useState } from 'react';
 import { Icon } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -42,7 +43,7 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
         <p className="notice">{t.confirmDone}</p>
         <p className="code-box">{code}</p>
         <a className="big-button whatsapp" href={whatsappLink(request.workerPhone ?? '', reply)} target="_blank" rel="noreferrer">
-          <Icon>💬</Icon>
+          <Icon icon={MessageCircle} />
           {t.sendBack}
         </a>
         <p className="hint">{t.confirmPrivacy}</p>
@@ -60,10 +61,10 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
           return (
             <li key={day.id} className={isWrong ? 'confirm-day wrong' : 'confirm-day'}>
               <div>
-                <Icon>{isWrong ? '✖' : '✔'}</Icon>
+                <Icon icon={isWrong ? X : Check} />
                 <strong>{formatDate(day.date, locale)}</strong>
                 <span className="muted">
-                  <Icon>{WORK_ICONS[day.workType]}</Icon> {t.workTypes[day.workType]}
+                  <Icon icon={WORK_ICONS[day.workType]} size="sm" /> {t.workTypes[day.workType]}
                   {day.site ? ` · ${day.site}` : ''} · {rupees(day.wage, lang)}
                 </span>
               </div>
@@ -80,7 +81,7 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
         disabled={confirmedIds.length === 0}
         onClick={() => setCode(encodeConfirmationCode(confirmedIds))}
       >
-        <Icon>👍</Icon>
+        <Icon icon={ThumbsUp} />
         {t.confirmYes} ({confirmedIds.length})
       </button>
       {confirmedIds.length === 0 && <p className="hint">{t.confirmNothing}</p>}

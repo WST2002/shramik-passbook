@@ -73,8 +73,8 @@ textarea {
 }
 
 .icon {
-  font-size: 1.4em;
-  line-height: 1;
+  flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .app-header {
@@ -120,6 +120,9 @@ textarea {
 }
 
 .demo-banner p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0 0 4px;
   font-size: 0.9rem;
 }
@@ -167,6 +170,10 @@ textarea {
 }
 
 .back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
   min-width: 48px;
   min-height: 48px;
   border: none;
@@ -355,6 +362,10 @@ textarea {
 }
 
 .small-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 44px;
   min-width: 44px;
   padding: 6px 14px;
@@ -393,7 +404,7 @@ textarea {
 }
 
 .tile .icon {
-  font-size: 2rem;
+  color: var(--primary);
 }
 
 .tile-note {
@@ -503,7 +514,7 @@ fieldset.filled {
 }
 
 .work-option .icon {
-  font-size: 2rem;
+  color: var(--primary);
 }
 
 .work-option.selected {
@@ -587,10 +598,6 @@ fieldset.filled {
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 700;
-}
-
-.badge .icon {
-  font-size: 1em;
 }
 
 .badge-confirmed {
@@ -722,9 +729,27 @@ fieldset.filled {
   border-bottom: 1px solid var(--line);
 }
 
+.checklist li .icon {
+  color: var(--muted);
+}
+
 .checklist li.done {
   color: var(--confirmed);
   font-weight: 700;
+}
+
+.checklist li.done .icon {
+  color: var(--confirmed);
+}
+
+.photo-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-top > .icon {
+  color: var(--primary);
 }
 
 .summary h2 {

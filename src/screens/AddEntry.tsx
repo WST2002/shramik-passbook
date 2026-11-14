@@ -1,3 +1,4 @@
+import { Camera, MapPin, Mic, Save } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { getAgent } from '../agent';
 import { Icon, ScreenHeader } from '../components/ui';
@@ -134,7 +135,7 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
       <section className="voice-box">
         {isSpeechSupported() ? (
           <button type="button" className="big-button voice" onClick={speak} disabled={listening}>
-            <Icon>🎤</Icon>
+            <Icon icon={Mic} />
             {listening ? t.listening : t.speak}
           </button>
         ) : (
@@ -181,7 +182,7 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
                   checked={form.workType === type}
                   onChange={() => update({ workType: type })}
                 />
-                <Icon>{WORK_ICONS[type]}</Icon>
+                <Icon icon={WORK_ICONS[type]} size="lg" />
                 <span>{t.workTypes[type]}</span>
               </label>
             ))}
@@ -197,7 +198,8 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
             ))}
           </datalist>
           <button type="button" className="small-button" onClick={addGps}>
-            <Icon>📍</Icon> {t.addGps}
+            <Icon icon={MapPin} size="sm" />
+            {t.addGps}
           </button>
           {gpsStatus && <span className="hint">{gpsStatus}</span>}
         </div>
@@ -241,7 +243,8 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
 
         <div className="field">
           <label htmlFor="photo" className="photo-label">
-            <Icon>📷</Icon> {t.photo}
+            <Icon icon={Camera} />
+            {t.photo}
           </label>
           <p className="hint">{t.photoRule}</p>
           <input id="photo" type="file" accept="image/*" capture="environment" onChange={(e) => void addPhoto(e.target.files?.[0])} />
@@ -254,7 +257,7 @@ export function AddEntry({ entries, today, onSave, onBack }: Props) {
           </p>
         )}
         <button type="submit" className="big-button primary">
-          <Icon>💾</Icon>
+          <Icon icon={Save} />
           {t.save}
         </button>
       </form>

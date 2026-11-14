@@ -1,15 +1,14 @@
+import { ArrowLeft, Camera, Check, Pencil, type LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { evidenceLevel, REQUIRED_DAYS } from '../lib/counter';
 import { loadPhoto } from '../lib/storage';
 import type { WorkEntry } from '../lib/types';
 
-export function Icon({ children }: { children: string }) {
-  return (
-    <span className="icon" aria-hidden="true">
-      {children}
-    </span>
-  );
+const ICON_SIZES = { sm: 18, md: 24, lg: 32 } as const;
+
+export function Icon({ icon: Glyph, size = 'md' }: { icon: LucideIcon; size?: keyof typeof ICON_SIZES }) {
+  return <Glyph className="icon" size={ICON_SIZES[size]} strokeWidth={2} absoluteStrokeWidth aria-hidden="true" focusable="false" />;
 }
 
 export function ScreenHeader({ title, onBack }: { title: string; onBack: () => void }) {
@@ -17,7 +16,7 @@ export function ScreenHeader({ title, onBack }: { title: string; onBack: () => v
   return (
     <div className="screen-header">
       <button type="button" className="back-button" onClick={onBack} aria-label={t.back}>
-        <Icon>←</Icon>
+        <Icon icon={ArrowLeft} />
       </button>
       <h1>{title}</h1>
     </div>
@@ -60,10 +59,11 @@ export function ProgressRing({ confirmed, total }: { confirmed: number; total: n
 export function EvidenceBadge({ entry }: { entry: WorkEntry }) {
   const { t } = useI18n();
   const level = evidenceLevel(entry);
-  const icon = level === 'confirmed' ? '✔' : level === 'photo' ? '📷' : '✎';
+  const icon = level === 'confirmed' ? Check : level === 'photo' ? Camera : Pencil;
   return (
     <span className={`badge badge-${level}`}>
-      <Icon>{icon}</Icon> {t.evidence[level]}
+      <Icon icon={icon} size="sm" />
+      {t.evidence[level]}
     </span>
   );
 }

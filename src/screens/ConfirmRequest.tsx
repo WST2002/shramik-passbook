@@ -1,3 +1,4 @@
+import { CircleCheck, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -87,7 +88,7 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode, onB
         </label>
         <textarea id="code" rows={3} value={codeText} placeholder={t.codePlaceholder} onChange={(e) => setCodeText(e.target.value)} />
         <button type="button" className="big-button confirm" onClick={applyCode} disabled={!codeText.trim()}>
-          <Icon>✔</Icon>
+          <Icon icon={CircleCheck} />
           {t.applyCode}
         </button>
         {codeMessage && (
@@ -124,7 +125,7 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode, onB
               <li key={entry.id}>
                 <label>
                   <input type="checkbox" checked={selected.has(entry.id)} onChange={() => toggle(entry.id)} />
-                  <Icon>{WORK_ICONS[entry.workType]}</Icon>
+                  <Icon icon={WORK_ICONS[entry.workType]} />
                   <span>
                     {formatDate(entry.date, locale)} · {entry.site || t.workTypes[entry.workType]}
                   </span>
@@ -135,7 +136,7 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode, onB
           {!phone && <p className="hint">{t.noContractorPhone}</p>}
           {link && (
             <a className="big-button whatsapp" href={link} target="_blank" rel="noreferrer">
-              <Icon>💬</Icon>
+              <Icon icon={MessageCircle} />
               {t.sendWhatsapp} ({days.length})
             </a>
           )}

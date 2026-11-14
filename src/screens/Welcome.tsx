@@ -1,3 +1,4 @@
+import { ArrowRight, FlaskConical } from 'lucide-react';
 import { useState } from 'react';
 import { Icon } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -32,13 +33,13 @@ export function Welcome({ onStart, onDemo }: Props) {
         <input id="welcome-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
         <p className="hint">{t.phoneHelp}</p>
         <button type="submit" className="big-button primary" disabled={!name.trim()}>
-          <Icon>👉</Icon>
+          <Icon icon={ArrowRight} />
           {t.start}
         </button>
       </form>
       <p className="hint">{t.privacyNote}</p>
       <button type="button" className="big-button secondary" onClick={onDemo}>
-        <Icon>🧪</Icon>
+        <Icon icon={FlaskConical} />
         {t.tryDemo}
       </button>
     </main>

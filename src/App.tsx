@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlaskConical } from 'lucide-react';
 import { Icon } from './components/ui';
 import { dictionaries, I18nContext } from './i18n';
 import { localToday } from './lib/dates';
@@ -223,7 +224,8 @@ export default function App() {
       {demo && (
         <div className="demo-banner no-print" role="status">
           <p>
-            <Icon>🧪</Icon> {t.demoBanner}
+            <Icon icon={FlaskConical} size="sm" />
+            {t.demoBanner}
           </p>
           <div className="demo-controls">
             <label htmlFor="demo-worker">{t.demoWorker}</label>

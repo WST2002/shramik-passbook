@@ -1,3 +1,4 @@
+import { Globe, Printer, Square, SquareCheck } from 'lucide-react';
 import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
 import { countWorkDays, entriesInWindow } from '../lib/counter';
@@ -39,20 +40,20 @@ export function Registration({ profile, entries, today, onBack }: Props) {
           <ul className="checklist">
             {checklist.map((item) => (
               <li key={item.text} className={item.done ? 'done' : ''}>
-                <Icon>{item.done ? '✅' : '☐'}</Icon>
+                <Icon icon={item.done ? SquareCheck : Square} />
                 <span>{item.text}</span>
               </li>
             ))}
           </ul>
           <p>{t.regWhere}</p>
           <a className="big-button secondary" href="https://upbocw.in" target="_blank" rel="noreferrer">
-            <Icon>🌐</Icon>
+            <Icon icon={Globe} />
             {t.regOpen}
           </a>
         </section>
         <p className="hint">{t.regSummaryHelp}</p>
         <button type="button" className="big-button primary" onClick={() => window.print()}>
-          <Icon>🖨️</Icon>
+          <Icon icon={Printer} />
           {t.printSummary}
         </button>
       </div>
