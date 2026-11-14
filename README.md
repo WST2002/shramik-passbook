@@ -25,7 +25,7 @@ Evidence levels per day: self-reported, photo attached (optional worksite photo 
 
 ### Demo mode
 
-Settings → "Sample data (demo)" loads three sample workers so the full flow can be seen without typing. Demo data lives only in memory, is never mixed with real data, and a yellow banner stays on screen while it is on.
+Tap "पहले नमूना देखें (डेमो)" on the first screen, or Settings → "Sample data (demo)", to load three sample workers so the full flow can be seen without typing. Demo data lives only in memory, is never mixed with real data, and a yellow banner stays on screen while it is on.
 
 ### Voice parser and the agent interface
 
@@ -44,7 +44,7 @@ Settings → "Sample data (demo)" loads three sample workers so the full flow ca
 ### Limits to know
 
 - The confirmation code has a checksum to catch typing mistakes. It is not a cryptographic signature, so it shows that a contractor was asked and replied on WhatsApp, not tamper-proof proof. The WhatsApp chat itself is the stronger record.
-- Data lives on one phone. If the phone is lost, the record is lost; a backup/restore option is planned.
+- Data lives on one phone. Settings → backup saves the whole record to a file the worker keeps, and restore merges it back; without a backup, a lost phone means a lost record.
 - Voice input uses the browser's Web Speech API, which works in Chrome on Android with an internet connection. Typing works everywhere, offline included.
 
 ## Setup
@@ -68,10 +68,15 @@ BASE_PATH=/shramik-passbook/ npm run build
 
 The included workflow `.github/workflows/deploy.yml` builds with `BASE_PATH=/<repository name>/` and publishes `dist/` on every push to `main`. In the repository settings, set Pages → Source to "GitHub Actions". The confirm page is built as its own `confirm/index.html`, so `/<repo>/confirm/#...` links work on Pages without a 404 workaround.
 
+## How it was built
+
+Development started in Claude Code. The project was then opened in the AgentFoundry IDE, the official IDE of Code for a Billion, where the backup and restore feature was tested, committed and pushed from AgentFoundry's terminal.
+
 ## Sources
 
 - Indus Action, "Innovations for Construction Worker Validation Protocols" (2025): https://indusaction.org/wp-content/uploads/2025/11/Innovations_For_Construction_Worker_Validation_protocols_IApdf.pdf
 - Uttar Pradesh Building and Other Construction Workers Welfare Board: https://upbocw.in
+- Comptroller and Auditor General of India, Performance Audit of the UP Building and Other Construction Workers Welfare Board, Report No. 4 of 2025: https://cag.gov.in/uploads/download_audit_report/2025/Final-rReport-No.04-WOBCW-English-UP---signed-07-05-2025-0689b2ec7244ad9.46184642.pdf
 
 ## Project structure
 
@@ -82,6 +87,6 @@ The included workflow `.github/workflows/deploy.yml` builds with `BASE_PATH=/<re
 
 ## License
 
-MIT, see `LICENSE`.
+MIT, see `LICENSE`. As agreed at Code for a Billion registration, this work is contributed as open source to the [Code for India GitHub organization](https://github.com/code-for-india), so any NGO or government body can adopt it; Code for India may fork or host it there.
 
 Made by **Wageesha Tripathi** · [LinkedIn](https://www.linkedin.com/in/wst2002/) · [Email](mailto:tripathiwageesha2002@gmail.com) · [GitHub](https://github.com/WST2002)
