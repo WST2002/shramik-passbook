@@ -35,7 +35,7 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     const page = new URL(request.url).pathname.includes('/confirm') ? './confirm/' : './';
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-cache' })
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
