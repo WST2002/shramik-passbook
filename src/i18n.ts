@@ -99,8 +99,10 @@ const hi = {
   markWrong: 'ये दिन गलत है',
   markRight: 'ये दिन सही है',
   confirmNothing: 'कोई दिन नहीं चुना।',
-  confirmDone: 'धन्यवाद! अब यह कोड श्रमिक को WhatsApp पर भेजें।',
+  confirmDone: (n: number) => `धन्यवाद! ${n} दिन की पुष्टि हो गई। अगला कदम: नीचे का हरा बटन दबाकर यह कोड श्रमिक को WhatsApp पर भेजें।`,
   sendBack: 'श्रमिक को WhatsApp पर भेजें',
+  sendBackAgain: 'WhatsApp फिर से खोलें',
+  sentBack: 'WhatsApp में संदेश भेज दिया हो तो काम पूरा हुआ। अब यह पेज बंद कर सकते हैं।',
   confirmPrivacy: 'यह पेज कुछ भी सेव नहीं करता। आपकी जानकारी कहीं नहीं जाती।',
   confirmBadLink: 'यह लिंक पूरा नहीं खुला। श्रमिक से लिंक फिर से भेजने को कहें।',
   replyMessage: (contractor: string, worker: string, n: number, code: string, url: string) =>
@@ -261,8 +263,10 @@ const en: Dict = {
   markWrong: 'This day is wrong',
   markRight: 'This day is correct',
   confirmNothing: 'No day selected.',
-  confirmDone: 'Thank you! Now send this code to the worker on WhatsApp.',
+  confirmDone: (n: number) => `Thank you! ${enDays(n)} confirmed. Next step: tap the green button below to send this code to the worker on WhatsApp.`,
   sendBack: 'Send to worker on WhatsApp',
+  sendBackAgain: 'Open WhatsApp again',
+  sentBack: 'Once the message is sent in WhatsApp, you are done. You can close this page.',
   confirmPrivacy: 'This page saves nothing. Your details go nowhere.',
   confirmBadLink: 'This link did not open fully. Ask the worker to send it again.',
   replyMessage: (contractor: string, worker: string, n: number, code: string, url: string) =>

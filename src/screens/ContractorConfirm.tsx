@@ -13,6 +13,7 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
   const [request] = useState(() => decodeRequest(fragment));
   const [wrong, setWrong] = useState<Set<string>>(new Set());
   const [code, setCode] = useState<string>();
+  const [sent, setSent] = useState(false);
 
   if (!request) {
     return (
@@ -40,12 +41,25 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
     return (
       <main className="screen">
         <h1>{t.confirmTitle(request.worker)}</h1>
-        <p className="notice">{t.confirmDone}</p>
+        <p className="notice success" role="status">
+          {t.confirmDone(confirmedIds.length)}
+        </p>
         <p className="code-box">{code}</p>
-        <a className="big-button whatsapp" href={whatsappLink(request.workerPhone ?? '', reply)} target="_blank" rel="noreferrer">
+        <a
+          className="big-button whatsapp"
+          href={whatsappLink(request.workerPhone ?? '', reply)}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => setSent(true)}
+        >
           <Icon icon={MessageCircle} />
-          {t.sendBack}
+          {sent ? t.sendBackAgain : t.sendBack}
         </a>
+        {sent && (
+          <p className="notice" role="status">
+            {t.sentBack}
+          </p>
+        )}
         <p className="hint">{t.confirmPrivacy}</p>
       </main>
     );
@@ -81,7 +95,7 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
         type="button"
         className="big-button confirm"
         disabled={confirmedIds.length === 0}
-        onClick={() => setCode(encodeConfirmationCode(confirmedIds))}
+        onClick={() => setCode((current) => current ?? encodeConfirmationCode(confirmedIds))}
       >
         <Icon icon={ThumbsUp} />
         {t.confirmYes} ({confirmedIds.length})
