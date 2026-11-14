@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, FlaskConical } from 'lucide-react';
 import { Icon } from './components/ui';
-import { dictionaries, I18nContext } from './i18n';
+import { dictionaries, I18nContext, type Dict } from './i18n';
 import { localToday } from './lib/dates';
 import { demoWorkers, type DemoWorker } from './lib/demo';
 import { markConfirmed } from './lib/payload';
@@ -45,7 +45,7 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [storageBroken, setStorageBroken] = useState(false);
   const [demo, setDemo] = useState<DemoState>();
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState<{ text: (t: Dict) => string }>();
   const navigated = useRef(false);
   const today = localToday();
   const t = dictionaries[lang];
@@ -70,7 +70,7 @@ export default function App() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(''), 3000);
+    const timer = window.setTimeout(() => setToast(undefined), 3000);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
@@ -102,11 +102,11 @@ export default function App() {
         await saveEntries(next);
         return true;
       } catch {
-        setToast(dictionaries[lang].storageFailed);
+        setToast({ text: (d) => d.storageFailed });
         return false;
       }
     },
-    [demo, storageBroken, lang],
+    [demo, storageBroken],
   );
 
   const code = codeFromHash(hash);
@@ -187,7 +187,7 @@ export default function App() {
             today={today}
             onSave={async (entry, photo) => {
               if (photo && entry.photo && !demo) await savePhoto(entry.photo.id, photo).catch(() => undefined);
-              if (await updateEntries([...activeEntries, entry])) setToast(t.saved);
+              if (await updateEntries([...activeEntries, entry])) setToast({ text: (d) => d.saved });
               back();
             }}
           />
@@ -200,7 +200,9 @@ export default function App() {
             onDelete={(id) => {
               const removed = activeEntries.find((e) => e.id === id);
               if (removed?.photo && !demo) void deletePhoto(removed.photo.id);
-              void updateEntries(activeEntries.filter((e) => e.id !== id));
+              void updateEntries(activeEntries.filter((e) => e.id !== id)).then((ok) => {
+                if (ok) setToast({ text: (d) => d.deleted });
+              });
             }}
           />
         );
@@ -229,20 +231,23 @@ export default function App() {
             onSaveProfile={(p) => {
               saveProfile(p);
               setProfile(p);
-              setToast(t.saved);
+              setToast({ text: (d) => d.saved });
             }}
+            onBackupSaved={() => setToast({ text: (d) => d.backupSaved })}
             onDemo={(on) => setDemo(on ? { index: 0, workers: demoWorkers(today) } : undefined)}
             onRestore={async (text) => {
               try {
                 const backup = parseBackup(text);
-                if (!(await updateEntries(mergeEntries(entries, backup.entries)))) return;
+                const merged = mergeEntries(entries, backup.entries);
+                const added = merged.length - entries.length;
+                if (!(await updateEntries(merged))) return;
                 if (!profile) {
                   saveProfile(backup.profile);
                   setProfile(backup.profile);
                 }
-                setToast(t.backupRestored);
+                setToast({ text: (d) => (added ? d.backupRestored(added) : d.backupNothingNew) });
               } catch {
-                setToast(t.backupBad);
+                setToast({ text: (d) => d.backupBad });
               }
             }}
             onDeleteAll={async () => {
@@ -294,7 +299,7 @@ export default function App() {
       {loaded || demo ? screen() : null}
       {toast && (
         <p className="toast" role="status">
-          {toast}
+          {toast.text(t)}
         </p>
       )}
     </I18nContext.Provider>

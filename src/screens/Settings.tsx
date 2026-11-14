@@ -22,14 +22,30 @@ interface Props {
   demo: boolean;
   onSaveProfile: (profile: Profile) => void;
   onDemo: (on: boolean) => void;
-  onDeleteAll: () => void;
+  onDeleteAll: () => Promise<void>;
   onRestore: (text: string) => Promise<void>;
+  onBackupSaved: () => void;
 }
 
-export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo, onDeleteAll, onRestore }: Props) {
+export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo, onDeleteAll, onRestore, onBackupSaved }: Props) {
   const { t } = useI18n();
   const [name, setName] = useState(profile.name);
   const [phone, setPhone] = useState(profile.phone);
+  const [busy, setBusy] = useState<'restore' | 'delete'>();
+  const edited = { name: name.trim(), phone: phone.replace(/[^\d+]/g, '') };
+  const unchanged = edited.name === profile.name && edited.phone === profile.phone;
+  const canSave = Boolean(edited.name) && !unchanged;
+  const noDays = entries.length === 0;
+
+  async function run(kind: 'restore' | 'delete', action: () => Promise<void>) {
+    if (busy) return;
+    setBusy(kind);
+    try {
+      await action();
+    } finally {
+      setBusy(undefined);
+    }
+  }
 
   function download() {
     saveFile(JSON.stringify(exportCounts(entries, today), null, 2), `shramik-passbook-summary-${today}.json`);
@@ -44,7 +60,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           className="panel"
           onSubmit={(e) => {
             e.preventDefault();
-            if (name.trim()) onSaveProfile({ name: name.trim(), phone: phone.replace(/[^\d+]/g, '') });
+            if (canSave) onSaveProfile(edited);
           }}
         >
           <h2>{t.profile}</h2>
@@ -53,10 +69,11 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           <label htmlFor="phone">{t.phoneLabel}</label>
           <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <p className="hint">{t.phoneHelp}</p>
-          <button type="submit" className="big-button primary">
+          <button type="submit" className="big-button primary" disabled={!canSave} aria-disabled={!canSave}>
             <Icon icon={Save} />
             {t.save}
           </button>
+          {unchanged && <p className="hint">{t.profileUnchanged}</p>}
         </form>
       )}
 
@@ -76,24 +93,29 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           <button
             type="button"
             className="big-button secondary"
-            onClick={() =>
-              saveFile(makeBackup(profile, entries, new Date().toISOString()), `shramik-passbook-backup-${today}.json`)
-            }
+            disabled={noDays}
+            aria-disabled={noDays}
+            onClick={() => {
+              saveFile(makeBackup(profile, entries, new Date().toISOString()), `shramik-passbook-backup-${today}.json`);
+              onBackupSaved();
+            }}
           >
             <Icon icon={HardDriveDownload} />
             {t.backupSave}
           </button>
-          <label className="big-button secondary file-button">
+          {noDays && <p className="hint">{t.nothingToSave}</p>}
+          <label className="big-button secondary file-button" aria-disabled={busy === 'restore'}>
             <Icon icon={HardDriveUpload} />
             {t.backupRestore}
             <input
               type="file"
               accept="application/json,.json"
               className="visually-hidden"
-              onChange={async (e) => {
+              disabled={busy === 'restore'}
+              onChange={(e) => {
                 const file = e.target.files?.[0];
                 e.target.value = '';
-                if (file) await onRestore(await file.text());
+                if (file) void run('restore', async () => onRestore(await file.text()));
               }}
             />
           </label>
@@ -104,7 +126,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
       <section className="panel">
         <h2>{t.exportTitle}</h2>
         <p className="hint">{t.exportHelp}</p>
-        <button type="button" className="big-button secondary" onClick={download}>
+        <button type="button" className="big-button secondary" onClick={download} disabled={noDays} aria-disabled={noDays}>
           <Icon icon={Download} />
           {t.exportButton}
         </button>
@@ -117,8 +139,9 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           <button
             type="button"
             className="big-button danger"
+            disabled={busy === 'delete'}
             onClick={() => {
-              if (window.confirm(t.deleteAllConfirm)) onDeleteAll();
+              if (window.confirm(t.deleteAllConfirm)) void run('delete', onDeleteAll);
             }}
           >
             <Icon icon={Trash2} />

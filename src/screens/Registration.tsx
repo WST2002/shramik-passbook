@@ -51,10 +51,17 @@ export function Registration({ profile, entries, today }: Props) {
           </a>
         </section>
         <p className="hint">{t.regSummaryHelp}</p>
-        <button type="button" className="big-button primary" onClick={() => window.print()}>
+        <button
+          type="button"
+          className="big-button primary"
+          onClick={() => window.print()}
+          disabled={groups.length === 0}
+          aria-disabled={groups.length === 0}
+        >
           <Icon icon={Printer} />
           {t.printSummary}
         </button>
+        {groups.length === 0 && <p className="hint">{t.printNothing}</p>}
       </div>
 
       <article className="summary print-area" aria-labelledby="summary-title">
