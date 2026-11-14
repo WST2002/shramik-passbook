@@ -61,8 +61,10 @@ export function ContractorConfirm({ fragment }: { fragment: string }) {
           return (
             <li key={day.id} className={isWrong ? 'confirm-day wrong' : 'confirm-day'}>
               <div>
-                <Icon icon={isWrong ? X : Check} />
-                <strong>{formatDate(day.date, locale)}</strong>
+                <span className="confirm-date">
+                  <Icon icon={isWrong ? X : Check} />
+                  <strong>{formatDate(day.date, locale)}</strong>
+                </span>
                 <span className="muted">
                   <Icon icon={WORK_ICONS[day.workType]} size="sm" /> {t.workTypes[day.workType]}
                   {day.site ? ` · ${day.site}` : ''} · {rupees(day.wage, lang)}
