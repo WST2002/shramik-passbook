@@ -1,4 +1,5 @@
 import { del, get, set } from 'idb-keyval';
+import { normalizeEntries } from './migrate';
 import type { Profile, WorkEntry } from './types';
 
 const ENTRIES_KEY = 'entries';
@@ -8,7 +9,7 @@ const LANG_KEY = 'shramik-passbook:lang';
 export type Lang = 'hi' | 'en';
 
 export async function loadEntries(): Promise<WorkEntry[]> {
-  return (await get<WorkEntry[]>(ENTRIES_KEY)) ?? [];
+  return normalizeEntries(await get<unknown>(ENTRIES_KEY));
 }
 
 export async function saveEntries(entries: WorkEntry[]): Promise<void> {
@@ -35,12 +36,13 @@ function readLocal(key: string): string | null {
   }
 }
 
-function writeLocal(key: string, value: string | null): void {
+function writeLocal(key: string, value: string | null): boolean {
   try {
     if (value === null) localStorage.removeItem(key);
     else localStorage.setItem(key, value);
+    return readLocal(key) === value;
   } catch {
-    return;
+    return false;
   }
 }
 
@@ -55,8 +57,8 @@ export function loadProfile(): Profile | undefined {
   }
 }
 
-export function saveProfile(profile: Profile): void {
-  writeLocal(PROFILE_KEY, JSON.stringify(profile));
+export function saveProfile(profile: Profile): boolean {
+  return writeLocal(PROFILE_KEY, JSON.stringify(profile));
 }
 
 export function loadLang(): Lang {
