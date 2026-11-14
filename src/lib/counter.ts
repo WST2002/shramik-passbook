@@ -1,4 +1,4 @@
-import { addDays } from './dates';
+import { twelveMonthWindowStart } from './dates';
 import { wageLedger } from './ledger';
 import type { EvidenceLevel, WorkEntry } from './types';
 
@@ -21,12 +21,12 @@ export function evidenceLevel(entry: WorkEntry): EvidenceLevel {
 }
 
 export function entriesInWindow(entries: WorkEntry[], today: string): WorkEntry[] {
-  const windowStart = addDays(today, -364);
+  const windowStart = twelveMonthWindowStart(today);
   return entries.filter((e) => e.date >= windowStart && e.date <= today);
 }
 
 export function countWorkDays(entries: WorkEntry[], today: string): DayCount {
-  const windowStart = addDays(today, -364);
+  const windowStart = twelveMonthWindowStart(today);
   const days = new Set<string>();
   const confirmed = new Set<string>();
   const withPhoto = new Set<string>();

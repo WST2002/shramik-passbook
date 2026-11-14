@@ -17,6 +17,12 @@ export function daysBetween(fromIso: string, toIso: string): number {
   return Math.round((toUtc(toIso) - toUtc(fromIso)) / DAY_MS);
 }
 
+export function twelveMonthWindowStart(today: string): string {
+  const [y, m, d] = today.split('-').map(Number);
+  const lastDay = new Date(Date.UTC(y - 1, m, 0)).getUTCDate();
+  return addDays(fromUtc(Date.UTC(y - 1, m - 1, Math.min(d, lastDay))), 1);
+}
+
 export function localToday(now: Date = new Date()): string {
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');

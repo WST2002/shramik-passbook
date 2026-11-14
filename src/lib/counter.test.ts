@@ -36,6 +36,24 @@ describe('countWorkDays', () => {
     expect(result.remaining).toBe(REQUIRED_DAYS - 2);
   });
 
+  it('keeps all 12 calendar months when the window spans a leap day', () => {
+    const result = countWorkDays([entry('a', '2027-03-02')], '2028-03-01');
+    expect(result.windowStart).toBe('2027-03-02');
+    expect(result.totalDays).toBe(1);
+  });
+
+  it('starts the window on 1 March when today is 29 February', () => {
+    expect(countWorkDays([], '2028-02-29').windowStart).toBe('2027-03-01');
+  });
+
+  it('counts one work day when two contractors are logged on the same date', () => {
+    const result = countWorkDays(
+      [entry('a', '2026-11-10'), entry('b', '2026-11-10', { contractorName: 'Salim', site: 'Other' })],
+      '2026-11-14',
+    );
+    expect(result.totalDays).toBe(1);
+  });
+
   it('counts a day as confirmed when any entry on that date is confirmed', () => {
     const result = countWorkDays(
       [
