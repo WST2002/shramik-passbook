@@ -77,8 +77,10 @@ const hi = {
   codePlaceholder: 'संदेश या कोड (SP1-…)',
   applyCode: 'पुष्टि जोड़ें',
   codeBad: 'कोड सही नहीं है। पूरा संदेश फिर से चिपकाएँ।',
-  codeApplied: (n: number) => `${n} ${n === 1 ? 'दिन' : 'दिनों'} पर “ठेकेदार ने पुष्टि की” लग गया।`,
+  codeApplied: (n: number) => `${n} ${n === 1 ? 'दिन' : 'दिनों'} पर “ठेकेदार ने पुष्टि की” लग गया:`,
   codeUnknown: 'ये दिन इस फ़ोन के रिकॉर्ड में नहीं मिले।',
+  codeAlready: 'ये पुष्टि पहले ही जुड़ चुकी है।',
+  pickDays: 'भेजने के लिए कम से कम एक दिन चुनें।',
   askMessage: (contractor: string, worker: string, n: number, url: string) =>
     `नमस्ते ${contractor} जी, मैं ${worker}। मैंने आपके यहाँ ${n} दिन काम किया। कृपया इस लिंक पर दिन देखकर पुष्टि करें (1 मिनट):\n${url}`,
   confirmTitle: (worker: string) => `${worker} के काम के दिन`,
@@ -228,8 +230,10 @@ const en: Dict = {
   codePlaceholder: 'Message or code (SP1-…)',
   applyCode: 'Add confirmation',
   codeBad: 'The code is not valid. Paste the whole message again.',
-  codeApplied: (n: number) => `${enDays(n)} ${n === 1 ? 'is' : 'are'} now marked "confirmed by contractor".`,
+  codeApplied: (n: number) => `${enDays(n)} ${n === 1 ? 'is' : 'are'} now marked "confirmed by contractor":`,
   codeUnknown: 'These days were not found in the record on this phone.',
+  codeAlready: 'This confirmation was already added.',
+  pickDays: 'Select at least one day to send.',
   askMessage: (contractor: string, worker: string, n: number, url: string) =>
     `Namaste ${contractor} ji, this is ${worker}. I worked ${enDays(n)} at your site. Please check the days and confirm on this link (1 minute):\n${url}`,
   confirmTitle: (worker: string) => `Work days of ${worker}`,

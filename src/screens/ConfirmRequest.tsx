@@ -1,26 +1,22 @@
 import { CircleCheck, MessageCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
 import { formatDate } from '../lib/dates';
 import { appUrl, whatsappLink } from '../lib/device';
 import { WORK_ICONS } from '../lib/format';
 import { contractorKey } from '../lib/ledger';
-import {
-  buildRequest,
-  decodeConfirmationCode,
-  encodeRequest,
-  findConfirmationCode,
-  MAX_DAYS_PER_REQUEST,
-} from '../lib/payload';
+import { buildRequest, checkConfirmation, encodeRequest, MAX_DAYS_PER_REQUEST } from '../lib/payload';
 import type { Profile, WorkEntry } from '../lib/types';
 
 interface Props {
   profile: Profile;
   entries: WorkEntry[];
   initialCode?: string;
-  onApplyCode: (ids: string[]) => number;
+  onApplyCode: (ids: string[]) => Promise<boolean>;
 }
+
+type CodeMessage = { status: 'bad' } | { status: 'unknown' } | { status: 'applied'; dates: string[] };
 
 export function ConfirmRequest({ profile, entries, initialCode, onApplyCode }: Props) {
   const { t, lang } = useI18n();
@@ -28,7 +24,9 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode }: P
   const [contractor, setContractor] = useState<string>();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [codeText, setCodeText] = useState(initialCode ?? '');
-  const [codeMessage, setCodeMessage] = useState('');
+  const [codeMessage, setCodeMessage] = useState<CodeMessage>();
+  const [applying, setApplying] = useState(false);
+  const busy = useRef(false);
 
   const unconfirmed = entries
     .filter((e) => !e.confirmation)
@@ -65,16 +63,41 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode }: P
       )
     : undefined;
 
-  function applyCode() {
-    const code = findConfirmationCode(codeText) ?? codeText;
-    const result = decodeConfirmationCode(code);
-    if (!result.ok) {
-      setCodeMessage(t.codeBad);
+  const check = codeText.trim() ? checkConfirmation(codeText, entries) : undefined;
+
+  function typeCode(text: string) {
+    setCodeText(text);
+    setCodeMessage(undefined);
+  }
+
+  async function applyCode() {
+    if (busy.current || !check) return;
+    if (check.status !== 'ready') {
+      if (check.status !== 'already') setCodeMessage(check);
       return;
     }
-    const applied = onApplyCode(result.ids);
-    setCodeMessage(applied ? t.codeApplied(applied) : t.codeUnknown);
+    busy.current = true;
+    setApplying(true);
+    const dates = entries
+      .filter((e) => check.ids.includes(e.id))
+      .map((e) => e.date)
+      .sort();
+    if (await onApplyCode(check.ids)) {
+      setCodeText('');
+      setCodeMessage({ status: 'applied', dates });
+    }
+    busy.current = false;
+    setApplying(false);
   }
+
+  const codeNotice = (() => {
+    if (check?.status === 'already') return t.codeAlready;
+    if (!codeMessage) return '';
+    if (codeMessage.status === 'bad') return t.codeBad;
+    if (codeMessage.status === 'unknown') return t.codeUnknown;
+    return `${t.codeApplied(codeMessage.dates.length)} ${codeMessage.dates.map((d) => formatDate(d, locale)).join(', ')}`;
+  })();
+  const codeDisabled = !check || check.status === 'already' || applying;
 
   return (
     <main className="screen">
@@ -85,14 +108,20 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode }: P
         <label className="sr-only" htmlFor="code">
           {t.codePlaceholder}
         </label>
-        <textarea id="code" rows={3} value={codeText} placeholder={t.codePlaceholder} onChange={(e) => setCodeText(e.target.value)} />
-        <button type="button" className="big-button confirm" onClick={applyCode} disabled={!codeText.trim()}>
+        <textarea id="code" rows={3} value={codeText} placeholder={t.codePlaceholder} onChange={(e) => typeCode(e.target.value)} />
+        <button
+          type="button"
+          className="big-button confirm"
+          onClick={() => void applyCode()}
+          disabled={codeDisabled}
+          aria-disabled={codeDisabled}
+        >
           <Icon icon={CircleCheck} />
           {t.applyCode}
         </button>
-        {codeMessage && (
-          <p className="notice" role="status">
-            {codeMessage}
+        {codeNotice && (
+          <p className={codeMessage?.status === 'applied' ? 'notice success' : 'notice'} role="status">
+            {codeNotice}
           </p>
         )}
       </section>
@@ -133,11 +162,19 @@ export function ConfirmRequest({ profile, entries, initialCode, onApplyCode }: P
             ))}
           </ul>
           {!phone && <p className="hint">{t.noContractorPhone}</p>}
-          {link && (
+          {link ? (
             <a className="big-button whatsapp" href={link} target="_blank" rel="noreferrer">
               <Icon icon={MessageCircle} />
               {t.sendWhatsapp} ({days.length})
             </a>
+          ) : (
+            <>
+              <button type="button" className="big-button whatsapp" disabled aria-disabled="true">
+                <Icon icon={MessageCircle} />
+                {t.sendWhatsapp} (0)
+              </button>
+              <p className="hint">{t.pickDays}</p>
+            </>
           )}
         </section>
       )}

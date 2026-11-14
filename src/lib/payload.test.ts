@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildRequest,
   checksum,
+  checkConfirmation,
   markConfirmed,
   MAX_DAYS_PER_REQUEST,
   decodeConfirmationCode,
@@ -119,7 +120,35 @@ describe('markConfirmed', () => {
   it('keeps the first confirmation time when the same code is applied again', () => {
     const first = markConfirmed([workEntry('aaaaaa', '2026-11-01')], ['aaaaaa'], '2026-11-03T00:00:00.000Z');
     const again = markConfirmed(first.entries, ['aaaaaa'], '2026-11-20T00:00:00.000Z');
-    expect(again.applied).toBe(1);
+    expect(again.applied).toBe(0);
     expect(again.entries[0].confirmation?.confirmedAt).toBe('2026-11-03T00:00:00.000Z');
+  });
+});
+
+describe('checkConfirmation', () => {
+  const confirmed = { confirmedAt: '2026-11-03T00:00:00.000Z', contractorName: 'रमेश' };
+  const entries = [workEntry('aaaaaa', '2026-11-01'), { ...workEntry('bbbbbb', '2026-11-02'), confirmation: confirmed }];
+
+  it('finds the code inside a pasted WhatsApp message', () => {
+    const message = `रमेश ने पुष्टि की।
+कोड: ${encodeConfirmationCode(['aaaaaa'])}`;
+    expect(checkConfirmation(message, entries)).toEqual({ status: 'ready', ids: ['aaaaaa'] });
+  });
+
+  it('rejects text without a valid code', () => {
+    expect(checkConfirmation('hello', entries)).toEqual({ status: 'bad' });
+    expect(checkConfirmation('SP1-aaaaaa-0000', entries)).toEqual({ status: 'bad' });
+  });
+
+  it('reports days that are not on this phone', () => {
+    expect(checkConfirmation(encodeConfirmationCode(['zzzzzz']), entries)).toEqual({ status: 'unknown' });
+  });
+
+  it('reports a code whose days are all confirmed already', () => {
+    expect(checkConfirmation(encodeConfirmationCode(['bbbbbb']), entries)).toEqual({ status: 'already' });
+  });
+
+  it('returns only the days that still need the confirmation', () => {
+    expect(checkConfirmation(encodeConfirmationCode(['aaaaaa', 'bbbbbb']), entries)).toEqual({ status: 'ready', ids: ['aaaaaa'] });
   });
 });

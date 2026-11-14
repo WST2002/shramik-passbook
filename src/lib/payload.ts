@@ -115,6 +115,22 @@ export function buildRequest(
   };
 }
 
+export type CodeCheck =
+  | { status: 'bad' }
+  | { status: 'unknown' }
+  | { status: 'already' }
+  | { status: 'ready'; ids: string[] };
+
+export function checkConfirmation(text: string, entries: WorkEntry[]): CodeCheck {
+  const result = decodeConfirmationCode(findConfirmationCode(text) ?? text);
+  if (!result.ok) return { status: 'bad' };
+  const wanted = new Set(result.ids);
+  const known = entries.filter((e) => wanted.has(e.id));
+  if (known.length === 0) return { status: 'unknown' };
+  const fresh = known.filter((e) => !e.confirmation).map((e) => e.id);
+  return fresh.length ? { status: 'ready', ids: fresh } : { status: 'already' };
+}
+
 export function markConfirmed(
   entries: WorkEntry[],
   ids: string[],
@@ -123,9 +139,8 @@ export function markConfirmed(
   const wanted = new Set(ids);
   let applied = 0;
   const next = entries.map((entry) => {
-    if (!wanted.has(entry.id)) return entry;
+    if (!wanted.has(entry.id) || entry.confirmation) return entry;
     applied += 1;
-    if (entry.confirmation) return entry;
     return { ...entry, confirmation: { confirmedAt, contractorName: entry.contractorName } };
   });
   return { entries: next, applied };

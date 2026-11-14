@@ -332,7 +332,9 @@ textarea {
   text-align: center;
 }
 
-.big-button:disabled {
+.big-button:disabled,
+.big-button[aria-disabled='true'],
+.small-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -552,9 +554,18 @@ fieldset > legend + * {
   border-radius: 6px;
 }
 
+.notice.success {
+  background: var(--confirmed-soft);
+  border-left-color: var(--confirmed);
+}
+
 .error {
   color: var(--danger);
   font-weight: 700;
+}
+
+.field-error {
+  margin: 4px 0 0;
 }
 
 .storage-error {

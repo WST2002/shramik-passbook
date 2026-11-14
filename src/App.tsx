@@ -213,11 +213,7 @@ export default function App() {
             profile={activeProfile}
             entries={activeEntries}
             initialCode={code}
-            onApplyCode={(ids) => {
-              const result = markConfirmed(activeEntries, ids, new Date().toISOString());
-              if (result.applied) void updateEntries(result.entries);
-              return result.applied;
-            }}
+            onApplyCode={(ids) => updateEntries(markConfirmed(activeEntries, ids, new Date().toISOString()).entries)}
           />
         );
       case 'register':

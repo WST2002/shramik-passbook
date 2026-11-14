@@ -22,7 +22,7 @@ describe('count strings', () => {
       en.days(1),
     ];
     for (const text of one) expect(text).not.toMatch(/\b1 (more |work )?days\b/);
-    expect(en.codeApplied(1)).toBe('1 day is now marked "confirmed by contractor".');
+    expect(en.codeApplied(1)).toBe('1 day is now marked "confirmed by contractor":');
   });
 
   it('uses the plural in English for several days', () => {
