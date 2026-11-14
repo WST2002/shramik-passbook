@@ -42,6 +42,8 @@ export default function App() {
   const [hash, setHash] = useState(window.location.hash);
   const [profile, setProfile] = useState<Profile | undefined>(loadProfile);
   const [entries, setEntries] = useState<WorkEntry[]>([]);
+  const entriesRef = useRef<WorkEntry[]>([]);
+  const writeQueue = useRef(Promise.resolve(true));
   const [loaded, setLoaded] = useState(false);
   const [storageBroken, setStorageBroken] = useState(false);
   const [demo, setDemo] = useState<DemoState>();
@@ -60,7 +62,13 @@ export default function App() {
   useEffect(() => {
     if (contractorPage) return;
     loadEntries()
-      .then(setEntries, () => setStorageBroken(true))
+      .then(
+        (stored) => {
+          entriesRef.current = stored;
+          setEntries(stored);
+        },
+        () => setStorageBroken(true),
+      )
       .finally(() => setLoaded(true));
   }, [contractorPage]);
 
@@ -88,23 +96,28 @@ export default function App() {
   const activeProfile = demo ? demo.workers[demo.index].profile : profile;
 
   const updateEntries = useCallback(
-    async (next: WorkEntry[]): Promise<boolean> => {
+    (change: (current: WorkEntry[]) => WorkEntry[]): Promise<boolean> => {
       if (demo) {
-        setDemo({
-          ...demo,
-          workers: demo.workers.map((w, i) => (i === demo.index ? { ...w, entries: next } : w)),
-        });
-        return true;
+        setDemo((d) =>
+          d && { ...d, workers: d.workers.map((w, i) => (i === d.index ? { ...w, entries: change(w.entries) } : w)) },
+        );
+        return Promise.resolve(true);
       }
-      setEntries(next);
-      try {
-        if (storageBroken) throw new Error('storage unavailable');
-        await saveEntries(next);
+      const write = writeQueue.current.then(async () => {
+        const next = change(entriesRef.current);
+        try {
+          if (storageBroken) throw new Error('storage unavailable');
+          await saveEntries(next);
+        } catch {
+          setToast({ text: (d) => d.storageFailed });
+          return false;
+        }
+        entriesRef.current = next;
+        setEntries(next);
         return true;
-      } catch {
-        setToast({ text: (d) => d.storageFailed });
-        return false;
-      }
+      });
+      writeQueue.current = write;
+      return write;
     },
     [demo, storageBroken],
   );
@@ -120,6 +133,7 @@ export default function App() {
     shownScreen.current = screenKey;
     screenChangedAt.current = performance.now();
     window.scrollTo(0, 0);
+    document.querySelector<HTMLElement>('main h1')?.focus({ preventScroll: true });
   }, [screenKey]);
 
   useEffect(() => {
@@ -172,7 +186,7 @@ export default function App() {
       return (
         <Welcome
           onStart={(p) => {
-            saveProfile(p);
+            if (!saveProfile(p)) setToast({ text: (d) => d.storageFailed });
             setProfile(p);
           }}
           onDemo={() => setDemo({ index: 0, workers: demoWorkers(today) })}
@@ -186,9 +200,20 @@ export default function App() {
             entries={activeEntries}
             today={today}
             onSave={async (entry, photo) => {
-              if (photo && entry.photo && !demo) await savePhoto(entry.photo.id, photo).catch(() => undefined);
-              if (await updateEntries([...activeEntries, entry])) setToast({ text: (d) => d.saved });
+              let saved = entry;
+              if (photo && entry.photo && !demo) {
+                const stored = await savePhoto(entry.photo.id, photo).then(
+                  () => true,
+                  () => false,
+                );
+                if (!stored) saved = { ...entry, photo: undefined };
+              }
+              if (!(await updateEntries((current) => (current.some((e) => e.id === saved.id) ? current : [...current, saved])))) {
+                return false;
+              }
+              setToast({ text: (d) => d.saved });
               back();
+              return true;
             }}
           />
         );
@@ -199,9 +224,10 @@ export default function App() {
             demo={Boolean(demo)}
             onDelete={(id) => {
               const removed = activeEntries.find((e) => e.id === id);
-              if (removed?.photo && !demo) void deletePhoto(removed.photo.id);
-              void updateEntries(activeEntries.filter((e) => e.id !== id)).then((ok) => {
-                if (ok) setToast({ text: (d) => d.deleted });
+              void updateEntries((current) => current.filter((e) => e.id !== id)).then((ok) => {
+                if (!ok) return;
+                if (removed?.photo && !demo) void deletePhoto(removed.photo.id).catch(() => undefined);
+                setToast({ text: (d) => d.deleted });
               });
             }}
           />
@@ -215,7 +241,7 @@ export default function App() {
             profile={activeProfile}
             entries={activeEntries}
             initialCode={code}
-            onApplyCode={(ids) => updateEntries(markConfirmed(activeEntries, ids, new Date().toISOString()).entries)}
+            onApplyCode={(ids) => updateEntries((current) => markConfirmed(current, ids, new Date().toISOString()).entries)}
           />
         );
       case 'register':
@@ -229,7 +255,10 @@ export default function App() {
             today={today}
             demo={Boolean(demo)}
             onSaveProfile={(p) => {
-              saveProfile(p);
+              if (!saveProfile(p)) {
+                setToast({ text: (d) => d.storageFailed });
+                return;
+              }
               setProfile(p);
               setToast({ text: (d) => d.saved });
             }}
@@ -238,20 +267,26 @@ export default function App() {
             onRestore={async (text) => {
               try {
                 const backup = parseBackup(text);
-                const merged = mergeEntries(entries, backup.entries);
-                const added = merged.length - entries.length;
-                if (!(await updateEntries(merged))) return;
-                if (!profile) {
-                  saveProfile(backup.profile);
-                  setProfile(backup.profile);
-                }
+                let added = 0;
+                const ok = await updateEntries((current) => {
+                  const merged = mergeEntries(current, backup.entries);
+                  added = merged.length - current.length;
+                  return merged;
+                });
+                if (!ok) return;
                 setToast({ text: (d) => (added ? d.backupRestored(added) : d.backupNothingNew) });
               } catch {
                 setToast({ text: (d) => d.backupBad });
               }
             }}
             onDeleteAll={async () => {
-              await deleteAllData(entries);
+              try {
+                await deleteAllData(entriesRef.current);
+              } catch {
+                setToast({ text: (d) => d.storageFailed });
+                return;
+              }
+              entriesRef.current = [];
               setEntries([]);
               setProfile(undefined);
               go('home');

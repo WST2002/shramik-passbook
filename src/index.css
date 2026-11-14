@@ -173,6 +173,10 @@ textarea {
   margin-bottom: 12px;
 }
 
+.screen-header h1:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .screen-header h1 {
   margin: 0;
 }

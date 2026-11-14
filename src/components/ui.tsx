@@ -14,7 +14,7 @@ export function Icon({ icon: Glyph, size = 'md' }: { icon: LucideIcon; size?: ke
 export function ScreenHeader({ title }: { title: string }) {
   return (
     <div className="screen-header">
-      <h1>{title}</h1>
+      <h1 tabIndex={-1}>{title}</h1>
     </div>
   );
 }
