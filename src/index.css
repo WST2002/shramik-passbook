@@ -945,3 +945,22 @@ fieldset > legend + * {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
+
+.header-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: -8px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--primary-text);
+  cursor: pointer;
+}
+
+.header-back:focus-visible {
+  outline: 3px solid var(--primary-text);
+  outline-offset: 2px;
+}

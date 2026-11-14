@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlaskConical } from 'lucide-react';
+import { ArrowLeft, FlaskConical } from 'lucide-react';
 import { Icon } from './components/ui';
 import { dictionaries, I18nContext } from './i18n';
 import { localToday } from './lib/dates';
@@ -108,9 +108,14 @@ export default function App() {
     saveLang(next);
   }
 
-  const header = (
+  const header = (showBack: boolean) => (
     <header className="app-header no-print">
       <span className="app-title">
+        {showBack && (
+          <button type="button" className="header-back" onClick={back} aria-label={t.back}>
+            <Icon icon={ArrowLeft} />
+          </button>
+        )}
         <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width="28" height="28" />
         {t.appName}
       </span>
@@ -123,7 +128,7 @@ export default function App() {
   if (contractorPage) {
     return (
       <I18nContext.Provider value={i18n}>
-        {header}
+        {header(false)}
         <ContractorConfirm fragment={hash} />
       </I18nContext.Provider>
     );
@@ -234,7 +239,7 @@ export default function App() {
 
   return (
     <I18nContext.Provider value={i18n}>
-      {header}
+      {header(route !== 'home')}
       {demo && (
         <div className="demo-banner no-print" role="status">
           <p>

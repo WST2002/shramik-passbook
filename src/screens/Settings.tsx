@@ -101,6 +101,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
         </section>
       )}
 
+      {!demo && (
       <section className="panel">
         <h2>{t.exportTitle}</h2>
         <p className="hint">{t.exportHelp}</p>
@@ -109,6 +110,7 @@ export function Settings({ profile, entries, today, demo, onSaveProfile, onDemo,
           {t.exportButton}
         </button>
       </section>
+      )}
 
       {!demo && (
         <section className="panel">
