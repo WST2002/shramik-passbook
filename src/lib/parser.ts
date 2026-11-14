@@ -160,6 +160,8 @@ const STOP_WORDS = keySet(
     'के का की को ने से हो है था थी थे और काम किया करी करके हुआ हुए हुई यहाँ यहां वहाँ साथ वाला वाले वाली दिन रोज़ रोज रुपये रुपए रूपए रुपया',
 );
 
+const DAY_COUNT_WORDS = keySet('din dino dinon दिन दिनों');
+
 const FILLER_AFTER_NUMBER = keySet('rupaye rupay rupees rupye rs ru re hua hue hui hai the ka ki रुपये रुपए रूपए रुपया हुआ हुए हुई है थे का की');
 
 interface Token {
@@ -177,6 +179,9 @@ type Role = 'agreed' | 'paid' | 'pending';
 
 function tokenize(text: string): Token[] {
   return text
+    .replace(/[०-९]/g, (digit) => String(digit.charCodeAt(0) - 0x966))
+    .replace(/(?:\+\s*91|(?<!\d)0?91)[\s-]*(?=[6-9]\d{4}[\s-]?\d{5}(?!\d))/g, ' ')
+    .replace(/(?<!\d)([6-9]\d{4})[\s-](\d{5})(?!\d)/g, '$1$2')
     .replace(/₹\s*/g, ' ')
     .replace(/(\d)(rs|rupaye|रुपये)/gi, '$1 $2')
     .split(/[^\p{L}\p{M}\p{N}]+/u)
@@ -220,9 +225,13 @@ function isNameLike(token: Token | undefined): token is Token {
   return !isKeyword(token.norm) && !isNumberWord(token.norm);
 }
 
+function isDayCount(tokens: Token[], i: number): boolean {
+  return !MULTIPLIERS.has(tokens[i].norm) && DAY_COUNT_WORDS.has(tokens[i + 1]?.norm ?? '');
+}
+
 function startsNumber(tokens: Token[], i: number): boolean {
   const { norm } = tokens[i];
-  if (isPhone(norm)) return false;
+  if (isPhone(norm) || isDayCount(tokens, i)) return false;
   if (isDigits(norm)) return true;
   if (!isNumberWord(norm)) return false;
   if (UNIT_WORDS[norm] === 60 && !norm.match(/[ऀ-ॿ]/)) {
@@ -242,10 +251,26 @@ function findNumberGroups(tokens: Token[]): NumberGroup[] {
     }
     const start = i;
     let lastWasDigits = isDigits(tokens[i].norm);
+    let sawHundred = HUNDRED.has(tokens[i].norm);
+    let afterHundred = -1;
     i += 1;
     while (i < tokens.length) {
       const { norm } = tokens[i];
       if (lastWasDigits ? !MULTIPLIERS.has(norm) : !isNumberWord(norm)) break;
+      if (isDayCount(tokens, i)) break;
+      if (HUNDRED.has(norm)) {
+        if (sawHundred && afterHundred > 0) {
+          i = afterHundred;
+          break;
+        }
+        sawHundred = true;
+        afterHundred = -1;
+      } else if (THOUSAND.has(norm)) {
+        sawHundred = false;
+        afterHundred = -1;
+      } else if (sawHundred && afterHundred < 0) {
+        afterHundred = i;
+      }
       lastWasDigits = false;
       i += 1;
     }

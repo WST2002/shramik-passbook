@@ -104,4 +104,30 @@ describe('parseEntryText', () => {
     expect(parseEntryText('काल्ह मिस्त्री के काम', TODAY).date).toBe('2026-11-13');
     expect(parseEntryText('आजु बेलदारी', TODAY).date).toBe(TODAY);
   });
+
+  it('reads Devanagari digits', () => {
+    const result = parseEntryText('आज ७०० रुपये की दिहाड़ी, ५०० मिले', TODAY);
+    expect(result.wageAgreed).toBe(700);
+    expect(result.wagePaid).toBe(500);
+  });
+
+  it('joins a phone number spoken in two halves', () => {
+    const result = parseEntryText('मुकेश ठेकेदार का नंबर 98765 43210 है, बेलदारी 450', TODAY);
+    expect(result.contractorPhone).toBe('9876543210');
+    expect(result.wageAgreed).toBe(450);
+    expect(parseEntryText('thekedar Rakesh +91 91234 56780, 800 tay', TODAY)).toMatchObject({
+      contractorPhone: '9123456780',
+      wageAgreed: 800,
+    });
+  });
+
+  it('keeps two spoken hundreds as two amounts', () => {
+    const result = parseEntryText('बिजली का काम, आठ सौ, चार सौ बाकी', TODAY);
+    expect(result.wageAgreed).toBe(800);
+    expect(result.wagePaid).toBe(400);
+  });
+
+  it('does not add a count of days to the wage', () => {
+    expect(parseEntryText('kal mistri ka kaam, dedh hazaar do din ke', TODAY).wageAgreed).toBe(1500);
+  });
 });
