@@ -4,6 +4,17 @@ A worker-owned record of construction work days, confirmed by the contractor ove
 
 Built during Code for India's **Code for a Billion** hackathon (impact area: Livelihood for the Uneducated).
 
+## How to use
+
+Open [wst2002.github.io/shramik-passbook](https://wst2002.github.io/shramik-passbook/) on a phone, write your name, and:
+
+| 1. Log a day | 2. Contractor confirms | 3. Watch the 90-day ring |
+|---|---|---|
+| <img src="docs/guide/03-add-start.webp" alt="Add today's work screen with the Speak button and a box to type one line" width="220"> | <img src="docs/guide/08-contractor-page.webp" alt="Contractor's page showing the worker's days in Hindi with a Yes, it is correct button" width="220"> | <img src="docs/guide/02-home.webp" alt="Home screen ring showing days confirmed by the contractor out of 90" width="220"> |
+| Speak or type one line ("आज रमेश ठेकेदार के यहाँ लंका में मिस्त्री का काम, 700 तय, 500 मिले"), check the filled boxes, save. | Send the days on WhatsApp. The contractor opens the link, marks any wrong day, taps "हाँ, सही है" and sends a code back. | The ring counts contractor-confirmed days out of 90; striped = days only you wrote. |
+
+Full step-by-step guide with a picture for every screen, in Hindi and English: **[docs/how-to-use.md](docs/how-to-use.md)**
+
 ## The problem
 
 Construction workers in Uttar Pradesh can register with the UP Building and Other Construction Workers (BOCW) Welfare Board ([upbocw.in](https://upbocw.in)) for pensions, accident cover, children's scholarships, maternity help and more. Registration needs proof of at least 90 days of construction work in the last 12 months. The [CAG performance audit of the UP BOCW Welfare Board (2025)](https://cag.gov.in/uploads/download_audit_report/2025/Final-rReport-No.04-WOBCW-English-UP---signed-07-05-2025-0689b2ec7244ad9.46184642.pdf) records that the Government of India directed the Board to accept workers' self-certification of work days with details of the sites, the employer's name and the number of days; the Board allowed self-certification from August 2020 without asking for those details, and the State said in March 2024 that collecting them had been initiated. Shramik Passbook keeps exactly those details, day by day.
