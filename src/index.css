@@ -557,6 +557,13 @@ fieldset > legend + * {
   font-weight: 700;
 }
 
+.storage-error {
+  margin: 0;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--danger);
+}
+
 .empty {
   text-align: center;
   color: var(--muted);

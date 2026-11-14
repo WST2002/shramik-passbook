@@ -43,6 +43,7 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | undefined>(loadProfile);
   const [entries, setEntries] = useState<WorkEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [storageBroken, setStorageBroken] = useState(false);
   const [demo, setDemo] = useState<DemoState>();
   const [toast, setToast] = useState('');
   const navigated = useRef(false);
@@ -58,10 +59,9 @@ export default function App() {
 
   useEffect(() => {
     if (contractorPage) return;
-    loadEntries().then((stored) => {
-      setEntries(stored);
-      setLoaded(true);
-    });
+    loadEntries()
+      .then(setEntries, () => setStorageBroken(true))
+      .finally(() => setLoaded(true));
   }, [contractorPage]);
 
   useEffect(() => {
@@ -88,18 +88,25 @@ export default function App() {
   const activeProfile = demo ? demo.workers[demo.index].profile : profile;
 
   const updateEntries = useCallback(
-    async (next: WorkEntry[]) => {
+    async (next: WorkEntry[]): Promise<boolean> => {
       if (demo) {
         setDemo({
           ...demo,
           workers: demo.workers.map((w, i) => (i === demo.index ? { ...w, entries: next } : w)),
         });
-        return;
+        return true;
       }
       setEntries(next);
-      await saveEntries(next);
+      try {
+        if (storageBroken) throw new Error('storage unavailable');
+        await saveEntries(next);
+        return true;
+      } catch {
+        setToast(dictionaries[lang].storageFailed);
+        return false;
+      }
     },
-    [demo],
+    [demo, storageBroken, lang],
   );
 
   const code = codeFromHash(hash);
@@ -179,9 +186,8 @@ export default function App() {
             entries={activeEntries}
             today={today}
             onSave={async (entry, photo) => {
-              if (photo && entry.photo && !demo) await savePhoto(entry.photo.id, photo);
-              await updateEntries([...activeEntries, entry]);
-              setToast(t.saved);
+              if (photo && entry.photo && !demo) await savePhoto(entry.photo.id, photo).catch(() => undefined);
+              if (await updateEntries([...activeEntries, entry])) setToast(t.saved);
               back();
             }}
           />
@@ -233,7 +239,7 @@ export default function App() {
             onRestore={async (text) => {
               try {
                 const backup = parseBackup(text);
-                await updateEntries(mergeEntries(entries, backup.entries));
+                if (!(await updateEntries(mergeEntries(entries, backup.entries)))) return;
                 if (!profile) {
                   saveProfile(backup.profile);
                   setProfile(backup.profile);
@@ -283,6 +289,11 @@ export default function App() {
             </button>
           </div>
         </div>
+      )}
+      {storageBroken && !demo && (
+        <p className="error storage-error no-print" role="alert">
+          {t.storageFailed}
+        </p>
       )}
       {loaded || demo ? screen() : null}
       {toast && (
