@@ -1,4 +1,4 @@
-import { WORK_TYPES, type WorkType } from './types';
+import { WORK_TYPES, type Profile, type WorkEntry, type WorkType } from './types';
 
 export interface ConfirmDay {
   id: string;
@@ -19,6 +19,7 @@ export interface ConfirmRequest {
 export type CodeResult = { ok: true; ids: string[] } | { ok: false; reason: 'format' | 'checksum' };
 
 const ID_LENGTH = 6;
+export const MAX_DAYS_PER_REQUEST = 31;
 const ID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
 const CODE_PATTERN = /SP1-([0-9a-z]+)-([0-9a-z]{4})/i;
 
@@ -96,4 +97,35 @@ export function decodeConfirmationCode(code: string): CodeResult {
 
 export function findConfirmationCode(text: string): string | undefined {
   return CODE_PATTERN.exec(text)?.[0];
+}
+
+export function buildRequest(
+  worker: Profile,
+  contractor: string,
+  entries: WorkEntry[],
+): ConfirmRequest {
+  return {
+    v: 1,
+    worker: worker.name,
+    workerPhone: worker.phone || undefined,
+    contractor,
+    days: entries
+      .slice(0, MAX_DAYS_PER_REQUEST)
+      .map((e) => ({ id: e.id, date: e.date, site: e.site, workType: e.workType, wage: e.wageAgreed })),
+  };
+}
+
+export function markConfirmed(
+  entries: WorkEntry[],
+  ids: string[],
+  confirmedAt: string,
+): { entries: WorkEntry[]; applied: number } {
+  const wanted = new Set(ids);
+  let applied = 0;
+  const next = entries.map((entry) => {
+    if (!wanted.has(entry.id)) return entry;
+    applied += 1;
+    return { ...entry, confirmation: { confirmedAt, contractorName: entry.contractorName } };
+  });
+  return { entries: next, applied };
 }

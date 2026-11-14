@@ -1,4 +1,5 @@
 import { addDays } from './dates';
+import { wageLedger } from './ledger';
 import type { EvidenceLevel, WorkEntry } from './types';
 
 export const REQUIRED_DAYS = 90;
@@ -43,5 +44,19 @@ export function countWorkDays(entries: WorkEntry[], today: string): DayCount {
     photoDays: withPhoto.size,
     remaining: Math.max(0, REQUIRED_DAYS - totalDays),
     ready: totalDays >= REQUIRED_DAYS,
+  };
+}
+
+export function exportCounts(entries: WorkEntry[], today: string) {
+  const count = countWorkDays(entries, today);
+  const ledger = wageLedger(entries);
+  return {
+    app: 'shramik-passbook',
+    exportedOn: today,
+    workDaysLast12Months: count.totalDays,
+    contractorConfirmedDays: count.confirmedDays,
+    daysWithPhoto: count.photoDays,
+    contractors: ledger.rows.length,
+    pendingWagesRupees: ledger.totalPending,
   };
 }

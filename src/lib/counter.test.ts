@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countWorkDays, evidenceLevel, REQUIRED_DAYS } from './counter';
+import { countWorkDays, evidenceLevel, exportCounts, REQUIRED_DAYS } from './counter';
 import type { WorkEntry } from './types';
 
 function entry(id: string, date: string, extra: Partial<WorkEntry> = {}): WorkEntry {
@@ -68,5 +68,24 @@ describe('evidenceLevel', () => {
     expect(evidenceLevel(entry('a', '2026-11-01'))).toBe('reported');
     expect(evidenceLevel(entry('a', '2026-11-01', { photo: { id: 'p', takenAt: 'x' } }))).toBe('photo');
     expect(evidenceLevel(entry('a', '2026-11-01', confirmed))).toBe('confirmed');
+  });
+});
+
+describe('exportCounts', () => {
+  it('exports counts only, with no names or phone numbers', () => {
+    const exported = exportCounts(
+      [entry('a', '2026-11-10', confirmed), entry('b', '2026-11-11', { wagePaid: 200 })],
+      '2026-11-14',
+    );
+    expect(exported).toEqual({
+      app: 'shramik-passbook',
+      exportedOn: '2026-11-14',
+      workDaysLast12Months: 2,
+      contractorConfirmedDays: 1,
+      daysWithPhoto: 0,
+      contractors: 1,
+      pendingWagesRupees: 300,
+    });
+    expect(JSON.stringify(exported)).not.toContain('Ramesh');
   });
 });

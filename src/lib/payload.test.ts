@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildRequest,
   checksum,
+  markConfirmed,
+  MAX_DAYS_PER_REQUEST,
   decodeConfirmationCode,
   decodeRequest,
   encodeConfirmationCode,
@@ -9,6 +12,7 @@ import {
   newEntryId,
   type ConfirmRequest,
 } from './payload';
+import type { WorkEntry } from './types';
 
 const request: ConfirmRequest = {
   v: 1,
@@ -76,5 +80,39 @@ describe('newEntryId', () => {
     const ids = new Set(Array.from({ length: 200 }, () => newEntryId()));
     for (const id of ids) expect(id).toMatch(/^[0-9a-z]{6}$/);
     expect(ids.size).toBe(200);
+  });
+});
+
+function workEntry(id: string, date: string): WorkEntry {
+  return {
+    id,
+    date,
+    workType: 'mason',
+    site: 'गोमती नगर',
+    contractorName: 'रमेश',
+    contractorPhone: '',
+    wageAgreed: 700,
+    wagePaid: 700,
+    createdAt: `${date}T10:00:00.000Z`,
+  };
+}
+
+describe('buildRequest', () => {
+  it('builds a request that survives encoding and caps the day count', () => {
+    const entries = Array.from({ length: 40 }, (_, i) => workEntry(`a${String(i).padStart(5, '0')}`, '2026-11-01'));
+    const built = buildRequest({ name: 'रामू', phone: '' }, 'रमेश', entries);
+    expect(built.days).toHaveLength(MAX_DAYS_PER_REQUEST);
+    expect(built.workerPhone).toBeUndefined();
+    expect(decodeRequest(encodeRequest(built))).toEqual(JSON.parse(JSON.stringify(built)));
+  });
+});
+
+describe('markConfirmed', () => {
+  it('marks only the confirmed ids and counts them', () => {
+    const entries = [workEntry('aaaaaa', '2026-11-01'), workEntry('bbbbbb', '2026-11-02')];
+    const result = markConfirmed(entries, ['bbbbbb', 'zzzzzz'], '2026-11-03T00:00:00.000Z');
+    expect(result.applied).toBe(1);
+    expect(result.entries[0].confirmation).toBeUndefined();
+    expect(result.entries[1].confirmation).toEqual({ confirmedAt: '2026-11-03T00:00:00.000Z', contractorName: 'रमेश' });
   });
 });
