@@ -112,7 +112,7 @@ textarea {
   position: sticky;
   top: 60px;
   z-index: 4;
-  padding: 10px 16px;
+  padding: 6px 16px;
   background: #ffe08a;
   border-bottom: 3px solid #a16207;
   color: #3b2a00;
@@ -120,7 +120,8 @@ textarea {
 }
 
 .demo-banner p {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
+  font-size: 0.9rem;
 }
 
 .demo-controls {
@@ -131,7 +132,15 @@ textarea {
   font-weight: 400;
 }
 
+.demo-controls label {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
 .demo-controls select {
+  flex: 1;
+  width: auto;
+  min-width: 0;
   min-height: 44px;
   border-radius: 8px;
   border: 1px solid #a16207;

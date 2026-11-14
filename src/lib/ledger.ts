@@ -23,6 +23,7 @@ export interface SiteGroup {
   days: number;
   confirmedDays: number;
   dates: string[];
+  confirmedDates: string[];
 }
 
 export function contractorKey(name: string): string {
@@ -66,11 +67,15 @@ export function groupBySiteAndContractor(entries: WorkEntry[]): SiteGroup[] {
       days: 0,
       confirmedDays: 0,
       dates: [],
+      confirmedDates: [],
     };
     if (!group.dates.includes(entry.date)) {
       group.dates.push(entry.date);
       group.days += 1;
-      if (entry.confirmation) group.confirmedDays += 1;
+    }
+    if (entry.confirmation && !group.confirmedDates.includes(entry.date)) {
+      group.confirmedDates.push(entry.date);
+      group.confirmedDays += 1;
     }
     group.to = entry.date;
     groups.set(key, group);

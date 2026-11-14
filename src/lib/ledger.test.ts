@@ -41,7 +41,8 @@ describe('groupBySiteAndContractor', () => {
       entry('a', '2026-11-03', { confirmation }),
       entry('b', '2026-11-01'),
       entry('c', '2026-11-02', { site: 'Alambagh' }),
-      entry('d', '2026-11-05', { confirmation }),
+      entry('d', '2026-11-05'),
+      entry('e', '2026-11-05', { confirmation }),
     ]);
     expect(groups).toEqual([
       {
@@ -53,6 +54,7 @@ describe('groupBySiteAndContractor', () => {
         days: 3,
         confirmedDays: 2,
         dates: ['2026-11-01', '2026-11-03', '2026-11-05'],
+        confirmedDates: ['2026-11-03', '2026-11-05'],
       },
       {
         site: 'Alambagh',
@@ -63,6 +65,7 @@ describe('groupBySiteAndContractor', () => {
         days: 1,
         confirmedDays: 0,
         dates: ['2026-11-02'],
+        confirmedDates: [],
       },
     ]);
   });

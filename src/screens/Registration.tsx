@@ -60,6 +60,7 @@ export function Registration({ profile, entries, today, onBack }: Props) {
       <article className="summary print-area" aria-labelledby="summary-title">
         <h2 id="summary-title">{t.summaryTitle}</h2>
         <p className="summary-subtitle">{t.summarySubtitle}</p>
+        <p className="hint">{t.summaryLegend}</p>
         <p className="disclaimer">{t.notCertificate}</p>
         <dl className="summary-meta">
           <div>
@@ -100,7 +101,11 @@ export function Registration({ profile, entries, today, onBack }: Props) {
                   <strong>
                     {formatDate(group.from, locale)} – {formatDate(group.to, locale)}
                   </strong>
-                  <span className="date-list">{group.dates.map(shortDate).join(', ')}</span>
+                  <span className="date-list">
+                    {group.dates
+                      .map((d) => (group.confirmedDates.includes(d) ? `${shortDate(d)} ✔` : shortDate(d)))
+                      .join(', ')}
+                  </span>
                 </td>
                 <td>{group.days}</td>
                 <td className={group.confirmedDays === group.days ? 'all-confirmed' : ''}>
