@@ -6,7 +6,7 @@ Built during Code for India's **Code for a Billion** hackathon (impact area: Liv
 
 ## The problem
 
-Construction workers in Uttar Pradesh can register with the UP Building and Other Construction Workers (BOCW) Welfare Board ([upbocw.in](https://upbocw.in)) for pensions, accident cover, children's scholarships, maternity help and more. Registration needs proof of at least 90 days of construction work in the last 12 months. UP accepts a worker self-declaration naming the sites and period worked (UP BOCW Rules, Rule 276 as amended in 2020).
+Construction workers in Uttar Pradesh can register with the UP Building and Other Construction Workers (BOCW) Welfare Board ([upbocw.in](https://upbocw.in)) for pensions, accident cover, children's scholarships, maternity help and more. Registration needs proof of at least 90 days of construction work in the last 12 months. Since August 2020, UP has allowed workers to self-certify their days of work ([CAG performance audit of the UP BOCW Welfare Board, 2025](https://cag.gov.in/uploads/download_audit_report/2025/Final-rReport-No.04-WOBCW-English-UP---signed-07-05-2025-0689b2ec7244ad9.46184642.pdf)), but the worker still has to name the sites and periods worked.
 
 Workers move between many small contractors and keep no record, so they cannot say where and when they worked. Indus Action's 2025 brief recommends a hybrid worker passbook, employer phone confirmation and geotagged worksite photos. Existing attendance apps (HajariBook, Laborbook, Labour Mistri) keep the record on the contractor's phone, and UP's Digital Labour Chowk app is for job matching, not a work record.
 
