@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { entryProblems, parsedPatch, type EntryFormState } from './entryForm';
+import { contractorFields, entryProblems, parsedPatch, type EntryFormState } from './entryForm';
 import type { WorkEntry } from './types';
 
 const known: WorkEntry = {
@@ -55,6 +55,20 @@ describe('parsedPatch', () => {
   });
 });
 
+describe('contractorFields', () => {
+  it('keeps one spelling for a contractor typed differently and reuses the saved phone', () => {
+    expect(contractorFields('  suresh  ', '', [known])).toEqual({ contractorName: 'Suresh', contractorPhone: '9876500002' });
+  });
+
+  it('prefers a phone typed now and strips spaces from it', () => {
+    expect(contractorFields('Suresh', '98765 00009', [known]).contractorPhone).toBe('9876500009');
+  });
+
+  it('keeps a new contractor as typed, with inner spaces collapsed', () => {
+    expect(contractorFields('Ram  Lal', '', [known])).toEqual({ contractorName: 'Ram Lal', contractorPhone: '' });
+  });
+});
+
 describe('entryProblems', () => {
   it('accepts a complete day', () => {
     expect(entryProblems(prefilled, '2026-11-14')).toEqual({});
@@ -68,6 +82,13 @@ describe('entryProblems', () => {
       site: 'missing',
       contractorName: 'missing',
     });
+  });
+
+  it('rejects a second entry for the same date and contractor, however the name is typed', () => {
+    const form = { ...prefilled, date: '2026-11-10', contractorName: '  suresh ' };
+    expect(entryProblems(form, '2026-11-14', [known])).toEqual({ date: 'duplicate' });
+    expect(entryProblems({ ...form, contractorName: 'Mohan' }, '2026-11-14', [known])).toEqual({});
+    expect(entryProblems({ ...form, date: '2026-11-11' }, '2026-11-14', [known])).toEqual({});
   });
 
   it('rejects a date after today', () => {

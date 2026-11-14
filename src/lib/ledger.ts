@@ -27,7 +27,7 @@ export interface SiteGroup {
 }
 
 export function contractorKey(name: string): string {
-  return name.trim().toLowerCase();
+  return name.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
 export function wageLedger(entries: WorkEntry[]): Ledger {

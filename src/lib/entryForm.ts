@@ -32,13 +32,33 @@ export function parsedPatch(form: EntryFormState, parsed: ParsedEntry, entries: 
   return patch;
 }
 
-export type RequiredField = 'date' | 'workType' | 'site' | 'contractorName';
-export type FieldProblem = 'missing' | 'future';
+export function contractorFields(name: string, phone: string, entries: WorkEntry[]) {
+  const typed = name.trim().replace(/\s+/g, ' ');
+  const key = contractorKey(typed);
+  const known = [...entries]
+    .filter((e) => contractorKey(e.contractorName) === key)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return {
+    contractorName: known[0]?.contractorName.trim() ?? typed,
+    contractorPhone: phone.replace(/[^\d+]/g, '') || (known.find((e) => e.contractorPhone)?.contractorPhone ?? ''),
+  };
+}
 
-export function entryProblems(form: EntryFormState, today: string): Partial<Record<RequiredField, FieldProblem>> {
+export type RequiredField = 'date' | 'workType' | 'site' | 'contractorName';
+export type FieldProblem = 'missing' | 'future' | 'duplicate';
+
+export function entryProblems(
+  form: EntryFormState,
+  today: string,
+  entries: WorkEntry[] = [],
+): Partial<Record<RequiredField, FieldProblem>> {
   const problems: Partial<Record<RequiredField, FieldProblem>> = {};
+  const contractor = contractorKey(form.contractorName);
   if (!form.date) problems.date = 'missing';
   else if (form.date > today) problems.date = 'future';
+  else if (contractor && entries.some((e) => e.date === form.date && contractorKey(e.contractorName) === contractor)) {
+    problems.date = 'duplicate';
+  }
   if (!form.workType) problems.workType = 'missing';
   if (!form.site.trim()) problems.site = 'missing';
   if (!form.contractorName.trim()) problems.contractorName = 'missing';

@@ -5,8 +5,9 @@ import { Icon, ScreenHeader } from '../components/ui';
 import { useI18n } from '../i18n';
 import { compressPhoto, currentPosition, isSpeechSupported, listenOnce } from '../lib/device';
 import { WORK_ICONS } from '../lib/format';
-import { entryProblems, parsedPatch, type EntryFormState, type RequiredField } from '../lib/entryForm';
+import { contractorFields, entryProblems, parsedPatch, type EntryFormState, type RequiredField } from '../lib/entryForm';
 import type { ParsedEntry } from '../lib/parser';
+import { contractorKey } from '../lib/ledger';
 import { newEntryId } from '../lib/payload';
 import { WORK_TYPES, type GeoPoint, type WorkEntry } from '../lib/types';
 
@@ -20,7 +21,7 @@ const FIELD_IDS: Record<RequiredField, string> = {
 interface Props {
   entries: WorkEntry[];
   today: string;
-  onSave: (entry: WorkEntry, photo?: Blob) => Promise<void>;
+  onSave: (entry: WorkEntry, photo?: Blob) => Promise<boolean>;
 }
 
 function initialForm(entries: WorkEntry[], today: string): EntryFormState {
@@ -50,7 +51,7 @@ export function AddEntry({ entries, today, onSave }: Props) {
   const [saving, setSaving] = useState(false);
   const savingRef = useRef(false);
 
-  const contractors = [...new Set(entries.map((e) => e.contractorName))];
+  const contractors = [...new Map(entries.map((e) => [contractorKey(e.contractorName), e.contractorName.trim()])).values()];
   const sites = [...new Set(entries.map((e) => e.site).filter(Boolean))];
 
   const update = (patch: Partial<EntryFormState>) => setForm((f) => ({ ...f, ...patch }));
@@ -95,7 +96,7 @@ export function AddEntry({ entries, today, onSave }: Props) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (savingRef.current) return;
-    const found = entryProblems(form, today);
+    const found = entryProblems(form, today, entries);
     const first = (['date', 'workType', 'site', 'contractorName'] as const).find((field) => found[field]);
     if (first || !form.workType) {
       setTriedSave(true);
@@ -111,24 +112,25 @@ export function AddEntry({ entries, today, onSave }: Props) {
       workType: form.workType,
       site: form.site.trim(),
       gps,
-      contractorName: form.contractorName.trim(),
-      contractorPhone: form.contractorPhone.replace(/[^\d+]/g, ''),
+      ...contractorFields(form.contractorName, form.contractorPhone, entries),
       wageAgreed: agreed,
       wagePaid: form.wagePaid === '' ? agreed : Number(form.wagePaid) || 0,
       photo: photo ? { id: newEntryId(), takenAt: photo.takenAt, gps: photo.gps } : undefined,
       createdAt: new Date().toISOString(),
     };
-    await onSave(entry, photo?.blob);
+    if (await onSave(entry, photo?.blob)) return;
+    savingRef.current = false;
+    setSaving(false);
   }
 
-  const problems = triedSave ? entryProblems(form, today) : {};
+  const problems = triedSave ? entryProblems(form, today, entries) : {};
   const cls = (field: keyof EntryFormState) => (filled.has(field) ? 'field filled' : 'field');
   const fieldError = (field: RequiredField) => {
     const problem = problems[field];
     if (!problem) return null;
     return (
       <p className="error field-error" id={`${field}-error`}>
-        {problem === 'future' ? t.dateFuture : t.fieldMissing[field]}
+        {problem === 'future' ? t.dateFuture : problem === 'duplicate' ? t.dateDuplicate : t.fieldMissing[field]}
       </p>
     );
   };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupBySiteAndContractor, wageLedger } from './ledger';
+import { contractorKey, groupBySiteAndContractor, wageLedger } from './ledger';
 import type { WorkEntry } from './types';
 
 function entry(id: string, date: string, extra: Partial<WorkEntry> = {}): WorkEntry {
@@ -18,6 +18,12 @@ function entry(id: string, date: string, extra: Partial<WorkEntry> = {}): WorkEn
 }
 
 const confirmation = { confirmedAt: '2026-11-12T00:00:00Z', contractorName: 'Ramesh' };
+
+describe('contractorKey', () => {
+  it('treats case and extra spaces as the same contractor', () => {
+    expect(contractorKey('  Ram   Lal ')).toBe(contractorKey('ram lal'));
+  });
+});
 
 describe('wageLedger', () => {
   it('totals owed and paid per contractor and overall', () => {
