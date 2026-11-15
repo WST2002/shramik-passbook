@@ -2,11 +2,15 @@
 
 A worker-owned record of construction work days, confirmed by the contractor over WhatsApp, shaped for the UP BOCW self-declaration.
 
+[![Watch the 1.5-minute demo of Shramik Passbook](https://img.youtube.com/vi/T8ZqHFUpTeQ/maxresdefault.jpg)](https://youtu.be/T8ZqHFUpTeQ)
+
+**▶ [Watch the 1.5-minute demo](https://youtu.be/T8ZqHFUpTeQ): a worker logs a day, the contractor confirms it on WhatsApp, and the day counts toward the 90 needed for registration.**
+
+[Open the live app](https://wst2002.github.io/shramik-passbook/)
+
 Built during Code for India's **Code for a Billion** hackathon (impact area: Livelihood for the Uneducated).
 
 ## How to use
-
-Watch the 1.5-minute demo: [youtu.be/T8ZqHFUpTeQ](https://youtu.be/T8ZqHFUpTeQ)
 
 Open [wst2002.github.io/shramik-passbook](https://wst2002.github.io/shramik-passbook/) on a phone, write your name, and:
 
