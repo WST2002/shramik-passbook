@@ -6,6 +6,8 @@ Built during Code for India's **Code for a Billion** hackathon (impact area: Liv
 
 ## How to use
 
+Watch the 1.5-minute demo: [youtu.be/T8ZqHFUpTeQ](https://youtu.be/T8ZqHFUpTeQ)
+
 Open [wst2002.github.io/shramik-passbook](https://wst2002.github.io/shramik-passbook/) on a phone, write your name, and:
 
 | 1. Log a day | 2. Contractor confirms | 3. Watch the 90-day ring |
