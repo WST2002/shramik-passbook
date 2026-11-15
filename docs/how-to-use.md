@@ -51,13 +51,13 @@ The pictures use sample names and dummy numbers (99999 00001, 99999 00002). They
 
 <img src="guide/03-add-start.webp" alt="Add work screen with the Speak button, a text box to type, the date and the work type icons" width="300">
 
-- Tap **बोलकर भरें** (Fill by speaking) and say your day, for example: "आज रमेश ठेकेदार के यहाँ लंका में मिस्त्री का काम, 700 तय, 500 मिले".
+- Tap **बोलकर भरें** (Fill by speaking) and say your day, for example: "आज विनोद शर्मा ठेकेदार के यहाँ कानपुर रोड में मिस्त्री का काम, 700 तय, 500 मिले".
 - Or type the same line in the box and tap **भरें** (Fill). Typing works without internet too.
 
 **ऐप सारी जानकारी भर देता है। एक बार जाँच लें, फिर "सेव करें" दबाएँ।**
 **The app fills the boxes. Check them once, then tap "सेव करें" (Save).**
 
-<img src="guide/04-add-filled.webp" alt="Add work form filled from one typed line: date, mason, site Lanka, contractor Ramesh, phone, 700 agreed and 500 paid" width="300">
+<img src="guide/04-add-filled.webp" alt="Add work form filled from one typed line: date, mason, site Kanpur Road, contractor Vinod Sharma, phone, 700 agreed and 500 paid" width="300">
 
 - Boxes filled from your words have an orange border. Change anything that is wrong.
 - Add the contractor's mobile number once. Next time the form starts with your last entry, so a repeat day is quick.
@@ -76,7 +76,7 @@ The pictures use sample names and dummy numbers (99999 00001, 99999 00002). They
 **"ठेकेदार से पुष्टि लें" दबाएँ और ठेकेदार चुनें।**
 **Tap "ठेकेदार से पुष्टि लें" (Ask the contractor) and choose the contractor.**
 
-<img src="guide/06-ask-choose.webp" alt="Ask screen listing contractor Ramesh with 2 days not yet confirmed" width="300">
+<img src="guide/06-ask-choose.webp" alt="Ask screen listing contractor Vinod Sharma with 2 days not yet confirmed" width="300">
 
 - Each contractor shows how many of your days are not confirmed yet.
 
@@ -89,7 +89,7 @@ The pictures use sample names and dummy numbers (99999 00001, 99999 00002). They
 - The message looks like this (the link carries the days, nothing is stored on any server):
 
 ```text
-नमस्ते रमेश जी, मैं राजू। मैंने आपके यहाँ 2 दिन काम किया। कृपया इस लिंक पर दिन देखकर पुष्टि करें (1 मिनट):
+नमस्ते विनोद शर्मा जी, मैं रामू प्रजापति। मैंने आपके यहाँ 2 दिन काम किया। कृपया इस लिंक पर दिन देखकर पुष्टि करें (1 मिनट):
 https://wst2002.github.io/shramik-passbook/confirm/#…
 ```
 
@@ -98,7 +98,7 @@ https://wst2002.github.io/shramik-passbook/confirm/#…
 **ठेकेदार लिंक खोलता है और आपके दिन हिंदी में देखता है।**
 **The contractor opens the link and sees your days in Hindi.**
 
-<img src="guide/08-contractor-page.webp" alt="Contractor page titled Raju's work days, with two days, a This day is wrong button on each and a Yes, it is correct (2) button" width="300">
+<img src="guide/08-contractor-page.webp" alt="Contractor page titled Ramu Prajapati's work days, with two days, a This day is wrong button on each and a Yes, it is correct (2) button" width="300">
 
 - The contractor needs no app and no account. The page saves nothing.
 
@@ -112,14 +112,14 @@ https://wst2002.github.io/shramik-passbook/confirm/#…
 **ठेकेदार को एक कोड मिलता है। वह हरा बटन दबाकर आपको WhatsApp पर भेजता है।**
 **The contractor gets a code and sends it back to you with the green WhatsApp button.**
 
-<img src="guide/10-contractor-code.webp" alt="Thank-you message, the code SP1-gs5jg8-y2p7 in a dashed box and a Send to worker on WhatsApp button" width="300">
+<img src="guide/10-contractor-code.webp" alt="Thank-you message, the code SP1-zvtfk8-wvs8 in a dashed box and a Send to worker on WhatsApp button" width="300">
 
 The message you get looks like this:
 
 ```text
-रमेश ने राजू के 1 दिन के काम की पुष्टि की।
-कोड: SP1-gs5jg8-y2p7
-श्रमिक पासबुक में खोलें: https://wst2002.github.io/shramik-passbook/#code=SP1-gs5jg8-y2p7
+विनोद शर्मा ने रामू प्रजापति के 1 दिन के काम की पुष्टि की।
+कोड: SP1-zvtfk8-wvs8
+श्रमिक पासबुक में खोलें: https://wst2002.github.io/shramik-passbook/#code=SP1-zvtfk8-wvs8
 ```
 
 ## 6. Add the confirmation
@@ -135,12 +135,12 @@ The message you get looks like this:
 **वे दिन "ठेकेदार ने पुष्टि की" बन जाते हैं।**
 **Those days are now marked "ठेकेदार ने पुष्टि की" (confirmed by contractor).**
 
-<img src="guide/12-code-added.webp" alt="Green message: 1 day is now marked confirmed by contractor: 14 Nov 2026; Ramesh now shows 1 day not confirmed" width="300">
+<img src="guide/12-code-added.webp" alt="Green message: 1 day is now marked confirmed by contractor: 15 Nov 2026; Vinod Sharma now shows 1 day not confirmed" width="300">
 
 **होम पर घेरा बढ़ जाता है।**
 **The ring on the home screen goes up.**
 
-<img src="guide/13-home-after-confirm.webp" alt="Home screen for Raju: 1 confirmed day, 1 self-reported, 2 total days, 88 more days needed for registration" width="300">
+<img src="guide/13-home-after-confirm.webp" alt="Home screen for Ramu Prajapati: 1 confirmed day, 1 self-reported, 2 total days, 88 more days needed for registration" width="300">
 
 - Adding the same code again does nothing; the app says it was already added.
 

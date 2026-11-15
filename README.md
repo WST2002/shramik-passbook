@@ -16,7 +16,7 @@ A worker-owned record of construction work days, confirmed by the contractor ove
 
 **The solution.** Shramik Passbook is a free Hindi app on the worker's own phone:
 
-1. **Log the day.** Speak or type one line, for example "आज रमेश ठेकेदार के यहाँ लंका में मिस्त्री का काम, 700 तय, 500 मिले", and the form fills itself.
+1. **Log the day.** Speak or type one line, for example "आज विनोद शर्मा ठेकेदार के यहाँ कानपुर रोड में मिस्त्री का काम, 700 तय, 500 मिले", and the form fills itself.
 2. **Contractor confirms on WhatsApp.** The worker sends the days in one WhatsApp message. The contractor opens the link, sees every day in Hindi, removes any wrong day and confirms with one tap. No app or account is needed.
 3. **Count toward 90 and register.** Confirmed days fill a 90-day ring, unpaid wages are tracked, and a printable summary lists every site, contractor and date for the registration self-declaration.
 
@@ -31,7 +31,7 @@ Open [wst2002.github.io/shramik-passbook](https://wst2002.github.io/shramik-pass
 | 1. Log a day | 2. Contractor confirms | 3. Watch the 90-day ring |
 |---|---|---|
 | <img src="docs/guide/03-add-start.webp" alt="Add today's work screen with the Speak button and a box to type one line" width="220"> | <img src="docs/guide/08-contractor-page.webp" alt="Contractor's page showing the worker's days in Hindi with a Yes, it is correct button" width="220"> | <img src="docs/guide/02-home.webp" alt="Home screen ring showing days confirmed by the contractor out of 90" width="220"> |
-| Speak or type one line ("आज रमेश ठेकेदार के यहाँ लंका में मिस्त्री का काम, 700 तय, 500 मिले"), check the filled boxes, save. | Send the days on WhatsApp. The contractor opens the link, marks any wrong day, taps "हाँ, सही है" and sends a code back. | The ring counts contractor-confirmed days out of 90; striped = days only you wrote. |
+| Speak or type one line ("आज विनोद शर्मा ठेकेदार के यहाँ कानपुर रोड में मिस्त्री का काम, 700 तय, 500 मिले"), check the filled boxes, save. | Send the days on WhatsApp. The contractor opens the link, marks any wrong day, taps "हाँ, सही है" and sends a code back. | The ring counts contractor-confirmed days out of 90; striped = days only you wrote. |
 
 Full step-by-step guide with a picture for every screen, in Hindi and English: **[docs/how-to-use.md](docs/how-to-use.md)**
 
@@ -45,7 +45,7 @@ Shramik Passbook is the record the worker owns, and it complements upbocw.in rat
 
 ## How it works
 
-1. **Log a day.** Date, type of work (icons), site (text and optional GPS), contractor name and phone, wage agreed and wage paid. The form is pre-filled from the last entry, so a repeat day is two taps. The worker can also speak the day in Hindi or Hinglish ("aaj Ramesh thekedar ke yahan Gomti Nagar mein mistri ka kaam, 700 tay, 500 mile"); the parsed fields are highlighted for checking before saving.
+1. **Log a day.** Date, type of work (icons), site (text and optional GPS), contractor name and phone, wage agreed and wage paid. The form is pre-filled from the last entry, so a repeat day is two taps. The worker can also speak the day in Hindi or Hinglish ("aaj Vinod Sharma thekedar ke yahan Kanpur Road mein mistri ka kaam, 700 tay, 500 mile"); the parsed fields are highlighted for checking before saving.
 2. **Ask the contractor to confirm.** The app builds a WhatsApp message with a link to the confirm page of the same static site. The days travel inside the link itself (`confirm/#<payload>`), so no server is involved. The contractor sees the days in Hindi, unticks any wrong day, and taps "हाँ, सही है".
 3. **Get the confirmation back.** The confirm page opens WhatsApp with a short code for the worker (`SP1-<entry ids>-<checksum>`). The worker taps the link or pastes the message, and those days are marked "ठेकेदार ने पुष्टि की".
 4. **Track 90 days.** The home screen shows contractor-confirmed days towards 90 as the headline, with self-reported days shown separately, and how many more days are needed.
