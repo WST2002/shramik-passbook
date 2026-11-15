@@ -8,6 +8,18 @@ A worker-owned record of construction work days, confirmed by the contractor ove
 
 [Open the live app](https://wst2002.github.io/shramik-passbook/)
 
+## Problem and solution
+
+**The problem.** In Uttar Pradesh, a construction worker who registers with the BOCW welfare board can get a pension, children's scholarships, maternity help and accident cover: if a registered worker dies in a work accident, the family can get ₹5,25,000. To register, the worker must declare at least 90 days of construction work in the last 12 months. But most workers move between many small contractors and keep no record, so they cannot say where and when they worked. The CAG audit (2025) found the board accepted these declarations without the site, employer or day details the Government of India had asked for.
+
+**The solution.** Shramik Passbook is a free Hindi app on the worker's own phone:
+
+1. **Log the day.** Speak or type one line, for example "आज रमेश ठेकेदार के यहाँ लंका में मिस्त्री का काम, 700 तय, 500 मिले", and the form fills itself.
+2. **Contractor confirms on WhatsApp.** The worker sends the days in one WhatsApp message. The contractor opens the link, sees every day in Hindi, removes any wrong day and confirms with one tap. No app or account is needed.
+3. **Count toward 90 and register.** Confirmed days fill a 90-day ring, unpaid wages are tracked, and a printable summary lists every site, contractor and date for the registration self-declaration.
+
+There is no server and no login: the record stays on the worker's phone.
+
 Built during Code for India's **Code for a Billion** hackathon (impact area: Livelihood for the Uneducated).
 
 ## How to use
@@ -21,7 +33,7 @@ Open [wst2002.github.io/shramik-passbook](https://wst2002.github.io/shramik-pass
 
 Full step-by-step guide with a picture for every screen, in Hindi and English: **[docs/how-to-use.md](docs/how-to-use.md)**
 
-## The problem
+## The problem in detail
 
 Construction workers in Uttar Pradesh can register with the UP Building and Other Construction Workers (BOCW) Welfare Board ([upbocw.in](https://upbocw.in)) for pensions, accident cover, children's scholarships, maternity help and more. Registration needs proof of at least 90 days of construction work in the last 12 months. The [CAG performance audit of the UP BOCW Welfare Board (2025)](https://cag.gov.in/uploads/download_audit_report/2025/Final-rReport-No.04-WOBCW-English-UP---signed-07-05-2025-0689b2ec7244ad9.46184642.pdf) records that the Government of India directed the Board to accept workers' self-certification of work days with details of the sites, the employer's name and the number of days; the Board allowed self-certification from August 2020 without asking for those details, and the State said in March 2024 that collecting them had been initiated. Shramik Passbook keeps exactly those details, day by day.
 
