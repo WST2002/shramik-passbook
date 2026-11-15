@@ -50,7 +50,7 @@ Tap "पहले नमूना देखें (डेमो)" on the first s
 
 - No backend, no accounts. Everything is stored on the worker's phone (IndexedDB and localStorage).
 - Only a name and an optional phone number are asked for. No Aadhaar number is collected.
-- The confirm page stores nothing; the days travel inside the WhatsApp link.
+- The confirm page stores nothing; the days travel inside the WhatsApp link, together with the worker's name and phone number so the contractor can reply.
 - "Export my summary" downloads counts only (days, confirmed days, photo days, number of contractors, pending wages) with no names or numbers, so pilot numbers can be counted by hand with the worker's consent.
 - "Delete all my data" wipes everything on the phone.
 
