@@ -81,7 +81,7 @@ The included workflow `.github/workflows/deploy.yml` builds with `BASE_PATH=/<re
 
 ## How it was built
 
-Development started in Claude Code. The project was then opened in the AgentFoundry IDE, the official IDE of Code for a Billion, where the backup and restore feature was tested, committed and pushed from AgentFoundry's terminal.
+The project was opened in the AgentFoundry IDE, the official IDE of Code for a Billion, where the backup and restore feature was tested, committed and pushed from AgentFoundry's terminal.
 
 ## Sources
 
