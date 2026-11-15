@@ -2,6 +2,8 @@
 
 A worker-owned record of construction work days, confirmed by the contractor over WhatsApp, shaped for the UP BOCW self-declaration.
 
+<img src="docs/poster.webp" alt="Shramik Passbook. The problem: a construction worker worked 90 days but has no proof, so cannot register for welfare. The solution: log each day, the contractor confirms on WhatsApp, reach 90 days and print the work summary.">
+
 [![Watch the 1.5-minute demo of Shramik Passbook](https://img.youtube.com/vi/T8ZqHFUpTeQ/maxresdefault.jpg)](https://youtu.be/T8ZqHFUpTeQ)
 
 **▶ [Watch the 1.5-minute demo](https://youtu.be/T8ZqHFUpTeQ): a worker logs a day, the contractor confirms it on WhatsApp, and the day counts toward the 90 needed for registration.**
